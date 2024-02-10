@@ -42,7 +42,9 @@
               </a>
             </h3>
             <p class="mt-1 text-sm text-gray-500">{{ product.color }}</p>
-            <p class="mt-1 text-sm font-medium text-gray-900">{{ product.price }}</p>
+            <p class="mt-1 text-sm font-medium text-gray-900">
+              {{ $store.state.currency.symbol }} {{ product.price }}
+            </p>
           </div>
         </router-link>
       </div>
