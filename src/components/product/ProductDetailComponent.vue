@@ -122,7 +122,12 @@
 
             <div class="mt-10 flex">
               <button
-                type="submit"
+                @click.prevent="
+                  addToCart({
+                    product: product,
+                    selectedColor: selectedColor,
+                  })
+                "
                 class="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
               >
                 Add to bag
@@ -187,7 +192,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from "vue";
 import {
   Disclosure,
@@ -205,54 +210,101 @@ import {
 import { StarIcon } from "@heroicons/vue/20/solid";
 import { HeartIcon, MinusIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
-const product = {
-  name: "Zip Tote Basket",
-  price: "140",
-  rating: 4,
-  images: [
-    {
-      id: 1,
-      name: "Angled view",
-      src: "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
-      alt: "Angled front view with bag zipped and handles upright.",
+export default {
+  name: "ProductDetailComponent",
+  components: {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    RadioGroup,
+    RadioGroupLabel,
+    RadioGroupOption,
+    Tab,
+    TabGroup,
+    TabList,
+    TabPanel,
+    TabPanels,
+    StarIcon,
+    HeartIcon,
+    MinusIcon,
+    PlusIcon,
+  },
+  // props: {
+  //   product: {
+  //     type: Object,
+  //     required: true,
+  //   },
+  // },
+  data() {
+    return {
+      product: {
+        name: "Zip Tote Basket",
+        price: "140",
+        rating: 4,
+        images: [
+          {
+            id: 1,
+            name: "Angled view",
+            src:
+              "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
+            alt: "Angled front view with bag zipped and handles upright.",
+          },
+        ],
+        colors: [
+          {
+            name: "Washed Black",
+            bgColor: "bg-gray-700",
+            selectedColor: "ring-gray-700",
+          },
+          { name: "White", bgColor: "bg-white", selectedColor: "ring-gray-400" },
+          { name: "Washed Gray", bgColor: "bg-gray-500", selectedColor: "ring-gray-500" },
+        ],
+        description: `
+          <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
+        `,
+        details: [
+          {
+            name: "Features",
+            items: [
+              "Multiple strap configurations",
+              "Spacious interior with top zip",
+              "Leather handle and tabs",
+              "Interior dividers",
+              "Stainless strap loops",
+              "Double stitched construction",
+              "Water-resistant",
+            ],
+          },
+          {
+            name: "Materials",
+            items: [
+              "Full grain leather",
+              "Organic cotton canvas",
+              "Solid brass hardware",
+              "Water-resistant finish",
+            ],
+          },
+          {
+            name: "Dimensions",
+            items: ["14” x 14” x 5”", "32L capacity"],
+          },
+        ],
+      },
+      selectedColor: null,
+      currencySymbol: "$", // Assuming default currency symbol
+    };
+  },
+  mounted() {
+    this.selectedColor = this.product.colors[0];
+  },
+  methods: {
+    addToCart({ product, selectedColor }) {
+      console.log("Added to cart", product, selectedColor);
+      this.$store.commit("addToCart", {
+        product: product,
+        color: selectedColor,
+      });
     },
-  ],
-  colors: [
-    { name: "Washed Black", bgColor: "bg-gray-700", selectedColor: "ring-gray-700" },
-    { name: "White", bgColor: "bg-white", selectedColor: "ring-gray-400" },
-    { name: "Washed Gray", bgColor: "bg-gray-500", selectedColor: "ring-gray-500" },
-  ],
-  description: `
-      <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
-    `,
-  details: [
-    {
-      name: "Features",
-      items: [
-        "Multiple strap configurations",
-        "Spacious interior with top zip",
-        "Leather handle and tabs",
-        "Interior dividers",
-        "Stainless strap loops",
-        "Double stitched construction",
-        "Water-resistant",
-      ],
-    },
-    {
-      name: "Materials",
-      items: [
-        "Full grain leather",
-        "Organic cotton canvas",
-        "Solid brass hardware",
-        "Water-resistant finish",
-      ],
-    },
-    {
-      name: "Dimensions",
-      items: ["14” x 14” x 5”", "32L capacity"],
-    },
-  ],
+  },
 };
-
-const selectedColor = ref(product.colors[0]);
 </script>

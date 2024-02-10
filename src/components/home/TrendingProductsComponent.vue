@@ -22,7 +22,7 @@
       >
         <router-link
           :to="'/product/' + product.id"
-          v-for="product in trendingProducts"
+          v-for="product in $store.state.trendingProducts"
           :key="product.id"
         >
           <div class="group relative">
@@ -61,50 +61,7 @@
 export default {
   name: "TrendingProductsComponent",
   data() {
-    return {
-      trendingProducts: [
-        {
-          id: 1,
-          name: "Leather Long Wallet",
-          color: "Natural",
-          price: "$75",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-02.jpg",
-          imageAlt: "Hand stitched, orange leather long wallet.",
-        },
-        {
-          id: 2,
-          name: "Hatch Frame",
-          color: "Black",
-          price: "$58",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-01.jpg",
-          imageAlt: "Front of black cotton t-shirt with hatch pattern.",
-        },
-        {
-          id: 3,
-          name: "Leather Key Loop",
-          color: "Natural",
-          price: "$16",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-03.jpg",
-          imageAlt: "Hand-stitched, orange leather key loop.",
-        },
-        {
-          id: 4,
-          name: "Machined Mechanical Pencil",
-          color: "Black",
-          price: "$35",
-          href: "#",
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-04.jpg",
-          imageAlt: "Black machined steel mechanical pencil.",
-        },
-      ],
-    };
+    return {};
   },
 };
 </script>
