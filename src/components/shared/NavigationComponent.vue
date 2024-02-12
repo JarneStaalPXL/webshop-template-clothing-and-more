@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white z-10">
     <!-- Mobile menu -->
     <TransitionRoot as="template" :show="openMobile">
-      <Dialog as="div" class="relative z-40 lg:hidden" @close="open = false">
+      <Dialog as="div" class="relative z-40 lg:hidden" @close="openMobile = false">
         <TransitionChild
           as="template"
           enter="transition-opacity ease-linear duration-300"
@@ -26,13 +26,13 @@
             leave-to="-translate-x-full"
           >
             <DialogPanel
-              class="relative flex w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl"
+              class="dialog-panel-classname relative flex w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl"
             >
               <div class="flex px-4 pb-2 pt-5">
                 <button
                   type="button"
                   class="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
-                  @click="open = false"
+                  @click="openMobile = false"
                 >
                   <span class="absolute -inset-0.5" />
                   <span class="sr-only">Close menu</span>
@@ -133,8 +133,10 @@
                   <a href="#" class="-m-2 block p-2 font-medium text-gray-900">Sign in</a>
                 </div>
                 <div class="flow-root">
-                  <a href="#" class="-m-2 block p-2 font-medium text-gray-900"
-                    >Create account</a
+                  <router-link
+                    to="/register"
+                    class="-m-2 block p-2 font-medium text-gray-900"
+                    >Create account</router-link
                   >
                 </div>
               </div>
@@ -320,12 +322,16 @@
               <div
                 class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
               >
-                <a href="#" class="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >Sign in</a
+                <router-link
+                  to="/login"
+                  class="text-sm font-medium text-gray-700 hover:text-gray-800"
+                  >Sign in</router-link
                 >
                 <span class="h-6 w-px bg-gray-200" aria-hidden="true" />
-                <a href="#" class="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >Create account</a
+                <router-link
+                  to="/register"
+                  class="text-sm font-medium text-gray-700 hover:text-gray-800"
+                  >Create account</router-link
                 >
               </div>
 
@@ -413,7 +419,7 @@
 
               <!-- Cart -->
               <div class="ml-4 flow-root lg:ml-6">
-                <a href="#" class="group -m-2 flex items-center p-2">
+                <router-link to="/cart" class="group -m-2 flex items-center p-2">
                   <ShoppingBagIcon
                     class="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                     aria-hidden="true"
@@ -423,7 +429,7 @@
                     >{{ $store.state.cart.length }}</span
                   >
                   <span class="sr-only">items in cart, view bag</span>
-                </a>
+                </router-link>
               </div>
             </div>
           </div>
@@ -643,6 +649,14 @@ export default {
 
 <style lang="scss" scoped>
 #navbar {
-  z-index: 999;
+  z-index: 11;
+  :focus {
+    outline: none !important;
+  }
+}
+
+/* Increase z-index for DialogPanel if needed */
+.dialog-panel-classname {
+  z-index: 50; /* This is just an example. Adjust the value as needed. */
 }
 </style>

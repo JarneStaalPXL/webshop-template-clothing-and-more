@@ -30,8 +30,8 @@
               class="h-56 w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-72 xl:h-80"
             >
               <img
-                :src="product.imageSrc"
-                :alt="product.imageAlt"
+                :src="product.images[0].src"
+                :alt="product.images[0].alt"
                 class="h-full w-full object-cover object-center"
               />
             </div>

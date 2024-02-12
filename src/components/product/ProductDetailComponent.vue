@@ -83,7 +83,7 @@
 
           <form class="mt-6">
             <!-- Colors -->
-            <div>
+            <div v-if="product.colors !== undefined && product.colors.length > 0">
               <h3 class="text-sm text-gray-600">Color</h3>
 
               <RadioGroup v-model="selectedColor" class="mt-2">
@@ -109,8 +109,8 @@
                       }}</RadioGroupLabel>
                       <span
                         aria-hidden="true"
+                        :style="{ background: color.bgColor }"
                         :class="[
-                          color.bgColor,
                           'h-8 w-8 rounded-full border border-black border-opacity-10',
                         ]"
                       />
@@ -237,69 +237,23 @@ export default {
   // },
   data() {
     return {
-      product: {
-        name: "Zip Tote Basket",
-        price: "140",
-        rating: 4,
-        images: [
-          {
-            id: 1,
-            name: "Angled view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
-            alt: "Angled front view with bag zipped and handles upright.",
-          },
-        ],
-        colors: [
-          {
-            name: "Washed Black",
-            bgColor: "bg-gray-700",
-            selectedColor: "ring-gray-700",
-          },
-          { name: "White", bgColor: "bg-white", selectedColor: "ring-gray-400" },
-          { name: "Washed Gray", bgColor: "bg-gray-500", selectedColor: "ring-gray-500" },
-        ],
-        description: `
-          <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
-        `,
-        details: [
-          {
-            name: "Features",
-            items: [
-              "Multiple strap configurations",
-              "Spacious interior with top zip",
-              "Leather handle and tabs",
-              "Interior dividers",
-              "Stainless strap loops",
-              "Double stitched construction",
-              "Water-resistant",
-            ],
-          },
-          {
-            name: "Materials",
-            items: [
-              "Full grain leather",
-              "Organic cotton canvas",
-              "Solid brass hardware",
-              "Water-resistant finish",
-            ],
-          },
-          {
-            name: "Dimensions",
-            items: ["14” x 14” x 5”", "32L capacity"],
-          },
-        ],
-      },
+      product: {},
       selectedColor: null,
       currencySymbol: "$", // Assuming default currency symbol
     };
   },
-  mounted() {
-    this.selectedColor = this.product.colors[0];
+  async mounted() {
+    this.product = await this.$store.dispatch(
+      "FIND_PRODUCT_FROM_ALL_LISTS",
+      this.$route.params.id
+    );
+
+    if (this.product.colors) {
+      this.selectedColor = this.product.colors[0];
+    }
   },
   methods: {
     addToCart({ product, selectedColor }) {
-      console.log("Added to cart", product, selectedColor);
       this.$store.commit("addToCart", {
         product: product,
         color: selectedColor,

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white z-0">
     <main>
       <!-- Hero section -->
       <div class="relative">
@@ -41,7 +41,7 @@
             >
               Mid-Season Sale
             </h1>
-            <div class="mt-4 sm:mt-6">
+            <div class="mt-4 sm:mt-6" v-if="false">
               <a
                 href="#"
                 class="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 font-medium text-white hover:bg-indigo-700"
@@ -186,21 +186,21 @@ const navigation = {
 const collections = [
   {
     name: "Women's",
-    href: "#",
+    href: "/category/women/tops",
     imageSrc:
       "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-01.jpg",
     imageAlt: "Woman wearing a comfortable cotton t-shirt.",
   },
   {
     name: "Men's",
-    href: "#",
+    href: "/category/men/tops",
     imageSrc:
       "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-02.jpg",
     imageAlt: "Man wearing a comfortable and casual cotton t-shirt.",
   },
   {
     name: "Desk Accessories",
-    href: "#",
+    href: "/category/desk-accessories/",
     imageSrc:
       "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-03.jpg",
     imageAlt:
