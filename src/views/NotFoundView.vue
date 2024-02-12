@@ -26,4 +26,8 @@
 export default {};
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+main {
+  height: 50dvh;
+}
+</style>

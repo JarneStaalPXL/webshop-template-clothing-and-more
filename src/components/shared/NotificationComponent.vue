@@ -22,7 +22,16 @@
             <div class="flex items-start">
               <div class="flex-shrink-0">
                 <!-- Icon can be replaced or modified based on props if needed -->
-                <CheckCircleIcon class="h-6 w-6 text-green-400" aria-hidden="true" />
+                <CheckCircleIcon
+                  class="h-6 w-6 text-green-400"
+                  aria-hidden="true"
+                  v-if="$store.state.notification.type === 'success'"
+                />
+                <CheckCircleIcon
+                  class="h-6 w-6 text-red-400"
+                  aria-hidden="true"
+                  v-if="$store.state.notification.type === 'error'"
+                />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
                 <p class="text-sm font-medium text-gray-900">

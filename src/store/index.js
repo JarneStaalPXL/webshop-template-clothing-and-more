@@ -14,6 +14,8 @@ const cartPersistPlugin = (store) => {
 export default createStore({
   plugins: [cartPersistPlugin],
   state: {
+    productsPerPage: 12,
+    taxRate: 0.21,
     productDetailProduct: {
       name: "Zip Tote Basket",
       id: 12,
@@ -21,6 +23,9 @@ export default createStore({
       price: "140",
       inStock: true,
       rating: 4,
+      gender: "women",
+      color: "#676767",
+      size: { height: 35, width: 35 },
       images: [
         {
           id: 1,
@@ -67,10 +72,7 @@ export default createStore({
             "Water-resistant finish",
           ],
         },
-        {
-          name: "Dimensions",
-          items: ["14” x 14” x 5”", "32L capacity"],
-        },
+        { name: "Dimensions", items: ["14” x 14” x 5”", "32L capacity"] },
       ],
     },
     allProductsOfCategory: [
@@ -80,6 +82,9 @@ export default createStore({
         id: 7,
         rating: 5,
         name: "Basic Tee",
+        gender: "men",
+        color: "#000000",
+        size: { height: 70, width: 50 },
         href: "#",
         images: [
           {
@@ -91,11 +96,7 @@ export default createStore({
         ],
         price: "35",
         colors: [
-          {
-            name: "Black",
-            bgColor: "black",
-            selectedColor: "ring-black",
-          },
+          { name: "Black", bgColor: "black", selectedColor: "ring-black" },
         ],
         description:
           "<p>A classic staple, the Basic Tee is made from soft, breathable cotton for all-day comfort. Its versatile design makes it perfect for layering or wearing on its own.</p>",
@@ -109,22 +110,22 @@ export default createStore({
               "Short sleeves",
             ],
           },
-          {
-            name: "Materials",
-            items: ["100% cotton"],
-          },
+          { name: "Materials", items: ["100% cotton"] },
         ],
       },
       {
-        quantity: 1,
         inStock: true,
+        quantity: 1,
         id: 8,
+        rating:3,
         name: "Classic Hoodie",
-        rating: 4,
+        gender: "men",
+        color: "#ece7dd",
+        size: { height: 75, width: 60 },
         href: "#",
         images: [
           {
-            id: 3, // Assuming a new ID for each image
+            id: 3,
             name: "Front view",
             src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-02.jpg",
             alt: "Front of men's Classic Hoodie in gray.",
@@ -132,11 +133,7 @@ export default createStore({
         ],
         price: "65",
         colors: [
-          {
-            name: "Gray",
-            bgColor: "#ece7dd",
-            selectedColor: "ring-black",
-          },
+          { name: "Gray", bgColor: "#ece7dd", selectedColor: "ring-black" },
         ],
         description:
           "<p>The Classic Hoodie offers both comfort and style. Made from a blend of soft fabrics, it features a drawstring hood and kangaroo pocket for added warmth and convenience.</p>",
@@ -150,22 +147,22 @@ export default createStore({
               "Ribbed cuffs and hem",
             ],
           },
-          {
-            name: "Materials",
-            items: ["50% cotton, 50% polyester"],
-          },
+          { name: "Materials", items: ["50% cotton, 50% polyester"] },
         ],
       },
       {
-        quantity: 1,
         inStock: true,
+        quantity: 1,
         id: 9,
+        rating: 4,
         name: "Slim Fit Jeans",
-        rating: 3,
+        gender: "men",
+        color: "#52505b",
+        size: { height: 100, width: 35 },
         href: "#",
         images: [
           {
-            id: 4, // Assuming a new ID for each image
+            id: 4,
             name: "Front view",
             src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-03.jpg",
             alt: "Front of men's Slim Fit Jeans in blue.",
@@ -173,11 +170,7 @@ export default createStore({
         ],
         price: "50",
         colors: [
-          {
-            name: "Blue",
-            bgColor: "#52505b",
-            selectedColor: "ring-black",
-          },
+          { name: "Blue", bgColor: "#52505b", selectedColor: "ring-black" },
         ],
         description:
           "<p>The Slim Fit Jeans combine style and comfort effortlessly. Made from stretch denim, they offer a sleek, modern silhouette while providing flexibility for everyday wear.</p>",
@@ -191,22 +184,21 @@ export default createStore({
               "Zip fly with button closure",
             ],
           },
-          {
-            name: "Materials",
-            items: ["98% cotton, 2% elastane"],
-          },
+          { name: "Materials", items: ["98% cotton, 2% elastane"] },
         ],
       },
       {
-        quantity: 1,
         inStock: true,
+        quantity: 1,
         id: 10,
         name: "Leather Belt",
+        gender: "women",
+        color: "#f7e2d1",
+        size: { height: 5, width: 120 },
         href: "#",
-        rating: 2,
         images: [
           {
-            id: 5, // Assuming a new ID for each image
+            id: 5,
             name: "Product view",
             src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-04.jpg",
             alt: "Leather Belt in brown.",
@@ -214,11 +206,7 @@ export default createStore({
         ],
         price: "25",
         colors: [
-          {
-            name: "Brown",
-            bgColor: "#f7e2d1",
-            selectedColor: "ring-black",
-          },
+          { name: "Brown", bgColor: "#f7e2d1", selectedColor: "ring-black" },
         ],
         description:
           "<p>Add a touch of sophistication to any outfit with the Leather Belt. Crafted from genuine leather, it features a classic design and sturdy buckle for durability and style.</p>",
@@ -231,10 +219,7 @@ export default createStore({
               "Sturdy buckle",
             ],
           },
-          {
-            name: "Materials",
-            items: ["100% leather"],
-          },
+          { name: "Materials", items: ["100% leather"] },
         ],
       },
     ],
@@ -248,9 +233,13 @@ export default createStore({
     ],
     trendingProducts: [
       {
+        rating: 5,
         quantity: 1,
         id: 1,
         name: "Leather Long Wallet",
+        gender: "women",
+        color: "#d5965f", // Color matching with "Natural"
+        size: { height: 10, width: 20 }, // Assumed size based on product type
         colors: [
           {
             name: "Natural",
@@ -264,7 +253,7 @@ export default createStore({
         href: "#",
         images: [
           {
-            id: 6, // New ID for the image
+            id: 6,
             name: "Product view",
             src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-02.jpg",
             alt: "Hand stitched, orange leather long wallet.",
@@ -289,10 +278,13 @@ export default createStore({
         ],
       },
       {
+        rating: 4,
         quantity: 1,
         id: 2,
         name: "Hatch Frame",
-        inStock: true,
+        gender: undefined,
+        color: "#84614a", // Color matching with "Black"
+        size: { height: 30, width: 40 }, // Assumed size for a frame
         colors: [
           {
             name: "Black",
@@ -300,11 +292,12 @@ export default createStore({
             selectedColor: "ring-black",
           },
         ],
+        inStock: true,
         price: "58",
         href: "#",
         images: [
           {
-            id: 7, // New ID for the image
+            id: 7,
             name: "Product view",
             src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-01.jpg",
             alt: "Front of black cotton t-shirt with hatch pattern.",
@@ -329,10 +322,13 @@ export default createStore({
         ],
       },
       {
+        rating: 3,
         quantity: 1,
         id: 3,
         name: "Leather Key Loop",
-        inStock: true,
+        gender: undefined,
+        color: "black", // Color explicitly stated
+        size: { height: 2, width: 10 }, // Assumed size for a key loop
         colors: [
           {
             name: "Natural",
@@ -340,11 +336,12 @@ export default createStore({
             selectedColor: "ring-black",
           },
         ],
+        inStock: true,
         price: "16",
         href: "#",
         images: [
           {
-            id: 8, // New ID for the image
+            id: 8,
             name: "Product view",
             src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-03.jpg",
             alt: "Hand-stitched, orange leather key loop.",
@@ -368,16 +365,19 @@ export default createStore({
         ],
       },
       {
+        rating: 2,
         quantity: 1,
         id: 4,
-        inStock: true,
         name: "Machined Mechanical Pencil",
-        colors: [],
+        gender: undefined,
+        color: "black", // Assuming color based on description
+        size: { height: 15, width: 1.5 }, // Assumed size for a mechanical pencil
+        colors: [], // No colors defined in the original array
         price: "35",
         href: "#",
         images: [
           {
-            id: 9, // New ID for the image
+            id: 9,
             name: "Product view",
             src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-04.jpg",
             alt: "Black machined steel mechanical pencil.",
@@ -401,6 +401,7 @@ export default createStore({
         ],
       },
     ],
+
     cart: JSON.parse(localStorage.getItem("cart")) || [],
     notification: {
       show: false,
@@ -409,8 +410,91 @@ export default createStore({
       type: "success",
       closeButton: "Close",
     },
+
+    sortOptions: [
+      { name: "Best Rating", href: "#", current: false },
+      { name: "Newest", href: "#", current: false },
+      { name: "Price: Low to High", href: "#", current: false },
+      { name: "Price: High to Low", href: "#", current: false },
+    ],
+    subCategories: [
+      { name: "All", href: "#"},
+      { name: "Totes", href: "#" },
+      { name: "Backpacks", href: "#" },
+      { name: "Travel Bags", href: "#" },
+      { name: "Hip Bags", href: "#" },
+      { name: "Laptop Sleeves", href: "#" },
+    ],
+    filters: [
+      {
+        id: "color",
+        name: "Color",
+        options: [
+          { value: "white", label: "White", checked: false },
+          { value: "beige", label: "Beige", checked: false },
+          { value: "blue", label: "Blue", checked: true },
+          { value: "brown", label: "Brown", checked: false },
+          { value: "green", label: "Green", checked: false },
+          { value: "purple", label: "Purple", checked: false },
+        ],
+      },
+      {
+        id: "category",
+        name: "Category",
+        options: [
+          { value: "new-arrivals", label: "New Arrivals", checked: false },
+          { value: "sale", label: "Sale", checked: false },
+          { value: "travel", label: "Travel", checked: true },
+          { value: "organization", label: "Organization", checked: false },
+          { value: "accessories", label: "Accessories", checked: false },
+        ],
+      },
+      {
+        id: "size",
+        name: "Size",
+        options: [
+          { value: "2l", label: "2L", checked: false },
+          { value: "6l", label: "6L", checked: false },
+          { value: "12l", label: "12L", checked: false },
+          { value: "18l", label: "18L", checked: false },
+          { value: "20l", label: "20L", checked: false },
+          { value: "40l", label: "40L", checked: true },
+        ],
+      },
+    ],
   },
   mutations: {
+    createColorFilters(state) {
+      let newList = [
+        ...state.allProductsOfCategory,
+        state.productDetailProduct,
+        ...state.trendingProducts,
+      ];
+
+      let colors = [];
+      newList.forEach((p) => {
+        if (p.colors) {
+          p.colors.forEach((c) => {
+            if (!colors.find((color) => color.value === c.name.toLowerCase())) {
+              colors.push({
+                value: c.bgColor,
+                label: c.name,
+                checked: false,
+              });
+            }
+          });
+        }
+      });
+      
+      // Remove dups
+      colors = colors.filter((c, index, self) =>
+        index === self.findIndex((t) => t.value === c.value)
+      );
+
+      
+
+      state.filters[0].options = colors;
+    },
     updateProductQuantity(state, { productId, quantity }) {
       const productIndex = state.cart.findIndex(
         (product) => product.id === productId
@@ -425,8 +509,10 @@ export default createStore({
       state.currency = currency;
     },
     addToCart(state, product) {
-      const index = state.cart.findIndex((item) => item.product.id === product.product.id);
-      
+      const index = state.cart.findIndex(
+        (item) => item.product.id === product.product.id
+      );
+
       if (index !== -1) {
         // Product exists in the cart, increase its quantity
         state.cart[index].quantity += 1;
@@ -436,7 +522,7 @@ export default createStore({
         const newProduct = { ...product, quantity: 1 }; // Ensure a quantity field is set
         state.cart.push(newProduct);
       }
-      
+
       state.notification = {
         show: true,
         title: "Success",
@@ -449,29 +535,70 @@ export default createStore({
       }, 5000);
     },
     removeProductFromCart(state, productId) {
-      const index = state.cart.findIndex((item) => item.product.id === productId);
+      const index = state.cart.findIndex(
+        (item) => item.product.id === productId
+      );
       if (index !== -1) {
         state.cart.splice(index, 1);
         // Persist the updated cart to localStorage
         localStorage.setItem("cart", JSON.stringify(state.cart));
       }
-    },    
+    },
     closeNotification(state) {
       state.notification.show = false;
     },
   },
   actions: {
+    SUBMIT_NEWSLETTER({ state, commit }, email) {
+      // Submit the email to your API here
+      console.log(`Submitting email: ${email}`);
+    },
     FIND_PRODUCT_FROM_ALL_LISTS({ state, commit }, productId) {
       let newList = [
         ...state.allProductsOfCategory,
         ...[state.productDetailProduct], // Spread the productDetailProduct as an array
         ...state.trendingProducts,
       ];
-      newList.forEach((p) => {
-      });
+      newList.forEach((p) => {});
       let product = newList.filter((p) => p.id === Number.parseInt(productId));
       return product[0];
     },
+    FIND_PRODUCTS_FROM_ALL_LISTS_BY_FILTERS({ state, commit }, filters) {
+      let newList = [
+        ...state.allProductsOfCategory,
+        state.productDetailProduct,
+        ...state.trendingProducts,
+      ];
+    
+      const matchesFilter = (product, filters) => {
+        // Adjusted gender filter check
+        const genderMatch = filters.gender ? 
+          product.gender === undefined || // Include if gender is undefined
+          product.gender.toLowerCase() === filters.gender.toLowerCase() : 
+          true; // If no gender filter is specified, do not filter out this product
+    
+        // Additional filter checks (e.g., color, size) can follow the same pattern
+        // Example for a color filter:
+        const colorMatch = filters.color ?
+          product.color && product.color.toLowerCase() === filters.color.toLowerCase() :
+          true;
+    
+        // Example for a size filter:
+        const sizeMatch = filters.size ?
+          product.size && product.size.height === filters.size.height && product.size.width === filters.size.width :
+          true;
+    
+        // Product must match all filters to be included
+        return genderMatch && colorMatch && sizeMatch;
+      };
+    
+      let products = newList.filter(product => matchesFilter(product, filters));
+    
+      // Assuming you want to do something with the filtered products, like return them
+      console.log(products); // For debug purposes
+      return products; // Or handle them as needed
+    },
+    
   },
   modules: {},
 });

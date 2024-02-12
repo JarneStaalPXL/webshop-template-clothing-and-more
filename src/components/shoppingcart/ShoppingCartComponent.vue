@@ -246,19 +246,23 @@ export default {
       const total = this.cart.reduce((acc, product) => {
         return acc + product.product.price * product.product.quantity;
       }, 0);
-      return parseFloat(total.toFixed(2)); // Convert back to number if necessary
+      return total.toFixed(2); // Keep as string
     },
     shippingEstimate() {
       const estimate = this.cart.length > 0 ? 5.0 : 0;
-      return parseFloat(estimate.toFixed(2)); // Convert back to number if necessary
+      return estimate.toFixed(2); // Keep as string
     },
     taxEstimate() {
-      const tax = this.subtotal * 0.0825;
-      return parseFloat(tax.toFixed(2)); // Convert back to number if necessary
+      const tax = parseFloat(this.subtotal) * this.$store.state.taxRate; // Access as a property
+      return tax.toFixed(2); // Keep as string
     },
     orderTotal() {
-      const total = this.subtotal + this.shippingEstimate + this.taxEstimate;
-      return parseFloat(total.toFixed(2)); // Convert back to number if necessary
+      // Perform calculation in integer space (cents) to avoid floating point precision issues
+      const total =
+        parseFloat(this.subtotal) * 100 +
+        parseFloat(this.shippingEstimate) * 100 +
+        parseFloat(this.taxEstimate) * 100;
+      return (total / 100).toFixed(2); // Convert back to dollars and fix to 2 decimal places
     },
   },
   methods: {
