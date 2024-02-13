@@ -85,13 +85,17 @@
                           class="flex items-center"
                         >
                           <input
-                            :id="`filter-mobile-${section.id}-${optionIdx}`"
+                            :id="`filter-${section.id}-${optionIdx}`"
                             :name="`${section.id}[]`"
                             :value="option.value"
                             type="checkbox"
                             :checked="option.checked"
+                            @change="
+                              onFilterChange(section, option.value, $event.target.checked)
+                            "
                             class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           />
+
                           <label
                             :for="`filter-mobile-${section.id}-${optionIdx}`"
                             class="ml-3 min-w-0 flex-1 text-gray-500"
@@ -146,11 +150,11 @@
                       v-slot="{ active }"
                     >
                       <a
-                        :href="option.href"
+                        @click="onSortChange(option.name)"
                         :class="[
                           option.current ? 'font-medium text-gray-900' : 'text-gray-500',
                           active ? 'bg-gray-100' : '',
-                          'block px-4 py-2 text-sm',
+                          'block px-4 py-2 text-sm cursor-pointer',
                         ]"
                         >{{ option.name }}</a
                       >
@@ -225,6 +229,9 @@
                         :value="option.value"
                         type="checkbox"
                         :checked="option.checked"
+                        @change="
+                          onFilterChange(section, option.value, $event.target.checked)
+                        "
                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
                       <label
@@ -309,10 +316,62 @@ export default {
     };
   },
   async mounted() {
-    await this.$store.commit("createColorFilters");
+    this.$store.commit("SET_FILTERS_FROM_URL", this.$route.query);
     await this.loadProducts();
   },
+  watch: {
+    "$route.query": {
+      async handler(newQuery) {
+        await this.loadProducts(); // This will use the updated query parameters
+      },
+      deep: true,
+    },
+  },
   methods: {
+    async onSortChange(sortValue) {
+      // Update the query parameters
+      console.log(sortValue);
+      let normalizedSortValue = sortValue
+        .toLowerCase()
+        .replace(/:/g, "") // Remove all colons
+        .replace(/\s+/g, "-"); // Replace one or more spaces with a single hyphen
+      this.$router.push({ query: { ...this.$route.query, sort: normalizedSortValue } });
+
+      await this.loadProducts();
+    },
+    async onFilterChange(section, value, checked) {
+      // First, get the current array of filter values for the section, or initialize it as an empty array
+      let currentFilters = this.$route.query[section.id]
+        ? this.$route.query[section.id].split(",")
+        : [];
+
+      if (checked) {
+        // Add the filter value if it's not already in the array
+        currentFilters.push(value);
+      } else {
+        // Remove the filter value from the array
+        currentFilters = currentFilters.filter((filterValue) => filterValue !== value);
+      }
+
+      // Update the query parameters
+      this.updateQueryParameters(section.id, currentFilters);
+      await this.loadProducts();
+    },
+    updateQueryParameters(filterKey, filterValues) {
+      // Create a copy of the current query parameters
+      let newQuery = { ...this.$route.query };
+
+      if (filterValues.length > 0) {
+        // Join the array of filter values into a comma-separated string
+        newQuery[filterKey] = filterValues.join(",");
+      } else {
+        // If the filter array is empty, remove the key from the query parameters
+        delete newQuery[filterKey];
+      }
+
+      // Push the updated query parameters to the router
+      this.$router.push({ query: newQuery });
+    },
     async changePage(newPage) {
       console.log(newPage);
       this.currentPage = newPage;
@@ -320,13 +379,23 @@ export default {
       await this.loadProducts(); // You may need to adjust loadProducts to consider currentPage
     },
     async loadProducts() {
-      // grab filters
       let filtersFromUrl = this.$route.query;
-      console.log(filtersFromUrl);
-      this.filteredProducts = await this.$store.dispatch(
+      console.log("🚀 ~ loadProducts ~ filtersFromUrl:", filtersFromUrl);
+
+      // Call the Vuex action
+      const { paginatedProducts, totalProductsCount } = await this.$store.dispatch(
         "FIND_PRODUCTS_FROM_ALL_LISTS_BY_FILTERS",
-        filtersFromUrl
+        {
+          filtersFromUrl,
+          currentPage: this.currentPage,
+        }
       );
+
+      // Update filteredProducts with paginated products
+      this.filteredProducts = paginatedProducts;
+
+      // Calculate and update totalPages based on the total products count
+      this.totalPages = Math.ceil(totalProductsCount / this.$store.state.productsPerPage);
     },
   },
 };

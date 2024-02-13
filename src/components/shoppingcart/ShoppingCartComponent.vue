@@ -121,23 +121,37 @@
                   </div>
                 </div>
 
-                <p class="mt-4 flex space-x-2 text-sm text-gray-700">
-                  <CheckIcon
-                    v-if="product.product.inStock"
-                    class="h-5 w-5 flex-shrink-0 text-green-500"
-                    aria-hidden="true"
-                  />
-                  <ClockIcon
-                    v-else
-                    class="h-5 w-5 flex-shrink-0 text-gray-300"
-                    aria-hidden="true"
-                  />
-                  <span>{{
-                    product.product.inStock
-                      ? "In stock"
-                      : `Ships in ${product.product.leadTime}`
-                  }}</span>
-                </p>
+                <div class="flex justify-between mt-10">
+                  <div class="flex">
+                    <div
+                      :class="`rounded-full border border-transparent ring-2 ring-black ring-offset-2 ring-offset-white`"
+                      :style="{
+                        background: product.color.bgColor,
+                        width: '25px',
+                        height: '25px',
+                      }"
+                    ></div>
+                    <div class="ml-3">{{ product.color.name }}</div>
+                  </div>
+
+                  <p class="mt-4 flex space-x-2 text-sm text-gray-700">
+                    <CheckIcon
+                      v-if="product.product.inStock"
+                      class="h-5 w-5 flex-shrink-0 text-green-500"
+                      aria-hidden="true"
+                    />
+                    <ClockIcon
+                      v-else
+                      class="h-5 w-5 flex-shrink-0 text-gray-300"
+                      aria-hidden="true"
+                    />
+                    <span>{{
+                      product.product.inStock
+                        ? "In stock"
+                        : `Ships in ${product.product.leadTime}`
+                    }}</span>
+                  </p>
+                </div>
               </div>
             </li>
           </ul>

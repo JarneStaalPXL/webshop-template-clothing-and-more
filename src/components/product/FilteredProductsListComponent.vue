@@ -30,6 +30,7 @@
               </div>
             </div>
           </div>
+          <div v-if="products.length <= 0">No products found with those filters</div>
         </div>
 
         <div class="border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
@@ -58,9 +59,9 @@
               </button>
               <button
                 @click="onNextPage"
+                :disabled="currentPage >= totalPages"
                 class="relative ml-3 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                :class="{ 'cursor-not-allowed opacity-50': currentPage === totalPages }"
-                :disabled="currentPage === totalPages"
+                :class="{ 'cursor-not-allowed opacity-50': currentPage >= totalPages }"
               >
                 Next
               </button>
@@ -77,16 +78,24 @@ export default {
   name: "FilteredProductsListComponent",
   props: {
     products: Array,
-    totalPages: Number,
     currentPage: Number,
     productsPerPage: Number,
   },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.products.length / this.productsPerPage);
+    },
+  },
   methods: {
     onPreviousPage() {
-      this.$emit("changePage", Math.max(this.currentPage - 1, 1));
+      if (this.currentPage > 1) {
+        this.$emit("changePage", this.currentPage - 1);
+      }
     },
     onNextPage() {
-      this.$emit("changePage", Math.min(this.currentPage + 1, this.totalPages));
+      if (this.currentPage < this.totalPages) {
+        this.$emit("changePage", this.currentPage + 1);
+      }
     },
   },
 };
