@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import {redirectToStripeCheckout} from "../helpers/stripeHelper";
 
 const cartPersistPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -23,7 +24,7 @@ export default createStore({
       price: "140",
       inStock: true,
       rating: 4,
-      gender: "women",
+      // category: "women",
       size: { height: 35, width: 35 },
       images: [
         {
@@ -73,7 +74,7 @@ export default createStore({
         },
         { name: "Dimensions", items: ["14” x 14” x 5”", "32L capacity"] },
       ],
-      categories: ["New Arrivals", "Travel"], // Example categories for this product
+      categories: ["New Arrivals", "Travel", "women"],
     },
     allProductsOfCategory: [
       {
@@ -82,7 +83,7 @@ export default createStore({
         id: 7,
         rating: 5,
         name: "Basic Tee",
-        gender: "men",
+        category: "men",
         color: "#000000",
         size: { height: 70, width: 50 },
         href: "#",
@@ -94,7 +95,7 @@ export default createStore({
             alt: "Front of men's Basic Tee in black.",
           },
         ],
-        price: "35",
+        price: "1",
         colors: [
           { name: "Black", bgColor: "black", selectedColor: "ring-black" },
         ],
@@ -112,7 +113,7 @@ export default createStore({
           },
           { name: "Materials", items: ["100% cotton"] },
         ],
-        categories: ["New Arrivals", "Men's Fashion"], // Example categories
+        categories: ["New Arrivals", "Men's Fashion", "men"], // Example categories
       },
       {
         inStock: true,
@@ -120,7 +121,7 @@ export default createStore({
         id: 8,
         rating: 3,
         name: "Classic Hoodie",
-        gender: "men",
+        category: "men",
         color: "#ece7dd",
         size: { height: 75, width: 60 },
         href: "#",
@@ -150,15 +151,15 @@ export default createStore({
           },
           { name: "Materials", items: ["50% cotton, 50% polyester"] },
         ],
-        categories: ["Sale", "Men's Fashion"], // Example categories
+        categories: ["Sale", "Men's Fashion", "men"], // Example categories
       },
       {
         inStock: true,
         quantity: 1,
         id: 9,
         rating: 4,
-        name: "Slim Fit Jeans",
-        gender: "men",
+        name: "Slim Tshirt",
+        category: "men",
         color: "#52505b",
         size: { height: 100, width: 35 },
         href: "#",
@@ -167,36 +168,31 @@ export default createStore({
             id: 4,
             name: "Front view",
             src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-03.jpg",
-            alt: "Front of men's Slim Fit Jeans in blue.",
+            alt: "Front of men's Slim Fit Tshirt in black.",
           },
         ],
         price: "50",
         colors: [
-          { name: "Blue", bgColor: "#52505b", selectedColor: "ring-black" },
+          { name: "Black", bgColor: "#52505b", selectedColor: "ring-black" },
         ],
         description:
-          "<p>The Slim Fit Jeans combine style and comfort effortlessly. Made from stretch denim, they offer a sleek, modern silhouette while providing flexibility for everyday wear.</p>",
+          "<p>The Slim Fit Tshirt combine style and comfort effortlessly. Made from stretch denim, they offer a sleek, modern silhouette while providing flexibility for everyday wear.</p>",
         details: [
           {
             name: "Features",
-            items: [
-              "Stretch denim for comfort",
-              "Slim fit",
-              "Classic 5-pocket styling",
-              "Zip fly with button closure",
-            ],
+            items: ["Stretch denim for comfort", "Slim fit"],
           },
           { name: "Materials", items: ["98% cotton, 2% elastane"] },
         ],
-        categories: ["New Arrivals", "Men's Fashion"], // Example categories
+        categories: ["New Arrivals", "Men's Fashion", "men"], // Example categories
       },
       {
         inStock: true,
         quantity: 1,
         id: 10,
-        rating:1,
+        rating: 1,
         name: "Leather Belt",
-        gender: "women",
+        category: "women",
         color: "#f7e2d1",
         size: { height: 5, width: 120 },
         href: "#",
@@ -225,7 +221,7 @@ export default createStore({
           },
           { name: "Materials", items: ["100% leather"] },
         ],
-        categories: ["Accessories", "Women's Fashion"], // Example categories
+        categories: ["Women's Fashion", "women"], // Example categories
       },
     ],
 
@@ -235,7 +231,7 @@ export default createStore({
         quantity: 1,
         id: 1,
         name: "Leather Long Wallet",
-        gender: "women",
+        category: "women",
         color: "#d5965f",
         size: { height: 10, width: 20 },
         colors: [
@@ -274,14 +270,14 @@ export default createStore({
             items: ["100% genuine leather"],
           },
         ],
-        categories: ["Accessories", "New Arrivals"], // Example categories
+        categories: ["Accessories", "New Arrivals", "women"], // Example categories
       },
       {
         rating: 4,
         quantity: 1,
         id: 2,
         name: "Hatch Frame",
-        gender: undefined,
+        category: undefined,
         color: "#84614a",
         size: { height: 30, width: 40 },
         colors: [
@@ -319,14 +315,14 @@ export default createStore({
             items: ["Metal frame", "Glass pane"],
           },
         ],
-        categories: ["Home Decor", "Sale"], // Example categories
+        categories: ["Home Decor", "Sale", "accessories"], // Example categories
       },
       {
         rating: 3,
         quantity: 1,
         id: 3,
         name: "Leather Key Loop",
-        gender: undefined,
+        category: undefined,
         color: "black",
         size: { height: 2, width: 10 },
         colors: [
@@ -363,7 +359,7 @@ export default createStore({
             items: ["100% genuine leather", "Metal key ring"],
           },
         ],
-        categories: ["Accessories", "Best Sellers"], // Example categories
+        categories: ["accessories", "Best Sellers"], // Example categories
       },
       {
         inStock: false,
@@ -372,7 +368,7 @@ export default createStore({
         quantity: 1,
         id: 4,
         name: "Machined Mechanical Pencil",
-        gender: undefined,
+        category: undefined,
         color: "black",
         size: { height: 15, width: 1.5 },
         colors: [],
@@ -402,7 +398,7 @@ export default createStore({
             items: ["Steel construction", "Rubber grip"],
           },
         ],
-        categories: ["Office Supplies", "New Arrivals"], // Example categories
+        categories: ["Office Supplies", "New Arrivals", "accessories"], // Example categories
       },
     ],
 
@@ -432,11 +428,9 @@ export default createStore({
     ],
     subCategories: [
       { name: "All", href: "#" },
-      { name: "Totes", href: "#" },
-      { name: "Backpacks", href: "#" },
-      { name: "Travel Bags", href: "#" },
-      { name: "Hip Bags", href: "#" },
-      { name: "Laptop Sleeves", href: "#" },
+      { name: "Men", href: "#" },
+      { name: "Women", href: "#" },
+      { name: "Accessories", href: "#" },
     ],
     filters: [
       {
@@ -512,27 +506,16 @@ export default createStore({
       state.currency = currency;
     },
     addToCart(state, { product, color }) {
-      // More detailed log to see exactly what's in the cart before attempting to add
-      console.log('Current cart:', JSON.parse(JSON.stringify(state.cart)));
-    
+
       // Find index of the product with the same id and color name
       const index = state.cart.findIndex(
-        (item) => item.product.id === product.id && item.color.name === color.name
+        (item) =>
+          item.product.id === product.id && item.color.name === color.name
       );
 
-      state.cart.forEach((item) => {
-        console.log('Item:', item);
-      });
-
-      console.log(index);
-    
-      // Debug log to see if the product was found
-      console.log('Product index found:', index);
-    
       if (index !== -1) {
         // Increase the quantity of the existing cart item
         state.cart[index].product.quantity += 1;
-        console.log(`Increased quantity of product with ID ${product.id} and color ${color.name}`);
       } else {
         // Add new product with color as a new cart item
         product.quantity = 1;
@@ -541,9 +524,8 @@ export default createStore({
           color: color,
         };
         state.cart.push(newCartItem);
-        console.log(`Added new product with ID ${product.id} and color ${color.name}`);
       }
-    
+
       // Update notification state
       state.notification = {
         show: true,
@@ -557,8 +539,7 @@ export default createStore({
         state.notification.show = false;
       }, 5000);
     },
-    
-    
+
     removeProductFromCart(state, productId) {
       const index = state.cart.findIndex(
         (item) => item.product.id === productId
@@ -610,6 +591,24 @@ export default createStore({
         ...state.trendingProducts,
       ];
 
+      // Check if the query category is "all" or undefined
+      if (!filtersFromUrl.category || filtersFromUrl.category === "all") {
+        // Return all products without applying filters and sorting
+        return {
+          paginatedProducts: newList.slice(startIndex, endIndex),
+          totalProducts: newList.length,
+        };
+      }
+
+      // Filter out products not in the selected categories and exclude "Accessories" if a specific category is chosen
+      let filteredList = newList.filter((product) => {
+        return (
+          product.categories &&
+          product.categories.includes(filtersFromUrl.category) &&
+          !product.categories.includes("Accessories")
+        );
+      });
+
       // Create a separate filters object without the sort key
       let filters = {};
       Object.keys(filtersFromUrl).forEach((filterKey) => {
@@ -644,51 +643,54 @@ export default createStore({
         for (const filterKey in filters) {
           const filterValue = filters[filterKey];
 
+          if (filters.category[0] === "accessories") {
+            if (product.categories.includes("accessories")) {
+              return true;
+            }
+          }
+
+          // Get the product attribute; handle cases where the attribute may be undefined
+          const productAttribute =
+            product[filterKey] !== undefined ? product[filterKey] : [];
+
           if (filterKey === "color") {
             if (!colorMatches(product.colors, filterValue)) return false;
-          } else if (filterKey === "gender") {
-            // Adjusted logic for gender filtering
-            if (
-              product.gender !== undefined &&
-              !filterValue.includes(product.gender)
-            ) {
-              return false;
-            }
           } else {
-            // Handle other filters
-            const productAttribute = product[filterKey];
-            if (!filterValue.includes(productAttribute)) {
-              return false;
+            // If productAttribute is an array, check if filterValue is in that array
+            if (Array.isArray(productAttribute)) {
+              if (
+                !productAttribute.some((attr) => filterValue.includes(attr))
+              ) {
+                return false;
+              }
+            } else {
+              // If productAttribute is a string or other non-array, check if filterValue includes it
+              if (!filterValue.includes(productAttribute)) {
+                return false;
+              }
             }
           }
         }
         return true; // Product passes all filters
       };
 
-      let filteredProducts = newList.filter((product) =>
+      let filteredProducts = filteredList.filter((product) =>
         matchesFilter(product, filters)
       );
 
       // Sort based on the selected sorter
-      if (filtersFromUrl.sort === 'best-rating') {
+      if (filtersFromUrl.sort === "best-rating") {
         filteredProducts.sort((a, b) => {
-          // Assign a default rating for products without a rating to ensure they end up at the end of the list
           const ratingA = a.rating !== undefined ? a.rating : -1;
           const ratingB = b.rating !== undefined ? b.rating : -1;
           return ratingB - ratingA;
         });
       }
-      
-      // if (filtersFromUrl.sort === 'newest') {
-      //   // Ensure that a `createdAt` date string exists in your product data for this to work
-      //   filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      // }
+
       if (filtersFromUrl.sort === "price-low-to-high") {
-        // Convert price to number if it's a string
         filteredProducts.sort((a, b) => Number(a.price) - Number(b.price));
       }
       if (filtersFromUrl.sort === "price-high-to-low") {
-        // Convert price to number if it's a string
         filteredProducts.sort((a, b) => Number(b.price) - Number(a.price));
       }
 
@@ -700,6 +702,19 @@ export default createStore({
         totalProducts: filteredProducts.length,
       };
     },
+
+    SUBMIT_ORDER({ state, commit }, {checkoutForm, cart}) {
+      // First grab the payment method from the checkoutForm
+      const paymentMethod = checkoutForm.paymentType;
+
+      // Then submit the payment and the cart to your server
+      console.log(checkoutForm);
+      if(paymentMethod === "stripe") {
+        // Initiatate the payment process with Stripe
+        console.log("Payment initiated with Stripe");
+        redirectToStripeCheckout(cart.orderTotal , state.currency.id);
+      }
+    }
   },
   modules: {},
 });

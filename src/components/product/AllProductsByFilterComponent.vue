@@ -116,7 +116,9 @@
         <div
           class="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24"
         >
-          <h1 class="text-4xl font-bold tracking-tight text-gray-900">Products</h1>
+          <h1 class="text-4xl font-bold tracking-tight text-gray-900">
+            Products ({{ $route.query.category }})
+          </h1>
 
           <div class="flex items-center">
             <Menu as="div" class="relative inline-block text-left">
@@ -194,7 +196,11 @@
                 class="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900"
               >
                 <li v-for="category in $store.state.subCategories" :key="category.name">
-                  <a :href="category.href">{{ category.name }}</a>
+                  <router-link
+                    class="cursor-pointer"
+                    :to="'products?category=' + category.name.toLowerCase()"
+                    >{{ category.name }}</router-link
+                  >
                 </li>
               </ul>
 
@@ -330,7 +336,6 @@ export default {
   methods: {
     async onSortChange(sortValue) {
       // Update the query parameters
-      console.log(sortValue);
       let normalizedSortValue = sortValue
         .toLowerCase()
         .replace(/:/g, "") // Remove all colons
@@ -373,14 +378,12 @@ export default {
       this.$router.push({ query: newQuery });
     },
     async changePage(newPage) {
-      console.log(newPage);
       this.currentPage = newPage;
       // Assume a method to fetch or filter products based on the current page
       await this.loadProducts(); // You may need to adjust loadProducts to consider currentPage
     },
     async loadProducts() {
       let filtersFromUrl = this.$route.query;
-      console.log("🚀 ~ loadProducts ~ filtersFromUrl:", filtersFromUrl);
 
       // Call the Vuex action
       const { paginatedProducts, totalProductsCount } = await this.$store.dispatch(

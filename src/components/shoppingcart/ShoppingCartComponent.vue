@@ -122,7 +122,7 @@
                 </div>
 
                 <div class="flex justify-between mt-10">
-                  <div class="flex">
+                  <div class="flex" v-if="product.color">
                     <div
                       :class="`rounded-full border border-transparent ring-2 ring-black ring-offset-2 ring-offset-white`"
                       :style="{
@@ -134,7 +134,8 @@
                     <div class="ml-3">{{ product.color.name }}</div>
                   </div>
 
-                  <p class="mt-4 flex space-x-2 text-sm text-gray-700">
+                  <!-- Ensure this is always on the right by placing it outside and after the conditionally rendered color div -->
+                  <div class="flex items-center space-x-2 text-sm text-gray-700">
                     <CheckIcon
                       v-if="product.product.inStock"
                       class="h-5 w-5 flex-shrink-0 text-green-500"
@@ -145,12 +146,14 @@
                       class="h-5 w-5 flex-shrink-0 text-gray-300"
                       aria-hidden="true"
                     />
-                    <span>{{
-                      product.product.inStock
-                        ? "In stock"
-                        : `Ships in ${product.product.leadTime}`
-                    }}</span>
-                  </p>
+                    <span>
+                      {{
+                        product.product.inStock
+                          ? "In stock"
+                          : `Ships in ${product.product.leadTime}`
+                      }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </li>
@@ -208,7 +211,7 @@
 
           <div class="mt-6">
             <button
-              type="submit"
+              @click.prevent="checkout()"
               class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
             >
               Checkout
@@ -236,6 +239,13 @@ import {
   ListboxOptions,
 } from "@headlessui/vue";
 
+import {
+  calculateSubtotal,
+  calculateShippingEstimate,
+  calculateTaxEstimate,
+  calculateOrderTotal,
+} from "../../helpers/cartCalculation";
+
 export default {
   components: {
     CheckIcon,
@@ -257,29 +267,39 @@ export default {
   },
   computed: {
     subtotal() {
-      const total = this.cart.reduce((acc, product) => {
-        return acc + product.product.price * product.product.quantity;
-      }, 0);
-      return total.toFixed(2); // Keep as string
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      cart.subtotal = calculateSubtotal(this.cart);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      return cart.subtotal;
     },
     shippingEstimate() {
-      const estimate = this.cart.length > 0 ? 5.0 : 0;
-      return estimate.toFixed(2); // Keep as string
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      cart.shippingEstimate = calculateShippingEstimate(this.subtotal);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      return cart.shippingEstimate;
     },
     taxEstimate() {
-      const tax = parseFloat(this.subtotal) * this.$store.state.taxRate; // Access as a property
-      return tax.toFixed(2); // Keep as string
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      cart.taxEstimate = calculateTaxEstimate(this.subtotal, this.$store.state.taxRate);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      return cart.taxEstimate;
     },
     orderTotal() {
-      // Perform calculation in integer space (cents) to avoid floating point precision issues
-      const total =
-        parseFloat(this.subtotal) * 100 +
-        parseFloat(this.shippingEstimate) * 100 +
-        parseFloat(this.taxEstimate) * 100;
-      return (total / 100).toFixed(2); // Convert back to dollars and fix to 2 decimal places
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      cart.orderTotal = calculateOrderTotal(
+        this.subtotal,
+        this.shippingEstimate,
+        this.taxEstimate
+      );
+      localStorage.setItem("cart", JSON.stringify(cart));
+      return cart.orderTotal;
     },
   },
   methods: {
+    checkout() {
+      // Redirect to checkout page
+      this.$router.push("/checkout");
+    },
     onQuantityChange(product, newQuantity) {
       product.product.quantity = newQuantity;
       this.$store.commit("updateProductQuantity", {

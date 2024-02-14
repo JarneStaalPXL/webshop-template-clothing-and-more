@@ -43,7 +43,7 @@
             </h1>
             <div class="mt-4 sm:mt-20">
               <router-link
-                to="/products?all"
+                to="/products?category=all"
                 class="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 font-medium text-white hover:bg-indigo-700"
                 >Shop Collection</router-link
               >
@@ -84,7 +84,10 @@
                     </p>
                     <h3 class="mt-1 font-semibold text-white">
                       <router-link
-                        :to="'/products?gender=' + collection.name.toLowerCase()"
+                        :to="
+                          '/products?category=' +
+                          collection.name.toLowerCase().replace(' ', '-')
+                        "
                       >
                         <span class="absolute inset-0" />
                         {{ collection.name }}
@@ -119,8 +122,8 @@ const collections = [
     imageAlt: "Man wearing a comfortable and casual cotton t-shirt.",
   },
   {
-    name: "Desk Accessories",
-    href: "/category/desk-accessories/",
+    name: "Accessories",
+    href: "/category/accessories/",
     imageSrc:
       "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-03.jpg",
     imageAlt:
