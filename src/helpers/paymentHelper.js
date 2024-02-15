@@ -1,5 +1,6 @@
 import { loadStripe } from "@stripe/stripe-js";
 
+
 async function redirectToStripeCheckoutWithProducts(cart, currency) {
     let products = cart.map((product) => { 
         let productName = product.product.name;
@@ -45,7 +46,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
         
     })
     
-    const response = await fetch("http://localhost:3000/create-checkout-session", {
+    const response = await fetch(`${import.meta.env.VITE_STRIPE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -58,7 +59,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
     console.log(response);
 
     const session = await response.json();
-    const stripe = await loadStripe("pk_live_0PECHwHMSwUkUryUP0w4iSJ90008XaXnmP");
+    const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
     stripe.redirectToCheckout({ sessionId: session.id });
 }
 

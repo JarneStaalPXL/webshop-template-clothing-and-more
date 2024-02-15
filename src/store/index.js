@@ -578,7 +578,7 @@ export default createStore({
      * @param {number} currentPage - The current page number.
      * @returns {Object} - An object containing paginated products and total number of filtered products.
      */
-    FIND_PRODUCTS_FROM_ALL_LISTS_BY_FILTERS(
+    async FIND_PRODUCTS_FROM_ALL_LISTS_BY_FILTERS(
       { state, commit },
       { filtersFromUrl, currentPage }
     ) {
@@ -619,13 +619,27 @@ export default createStore({
         };
       }
 
-      // Filter logic for specific categories excluding "Accessories"
-      let filteredList = newList.filter(
-        (product) =>
-          product.categories &&
-          product.categories.includes(filtersFromUrl.category) &&
-          !product.categories.includes("Accessories")
-      );
+      console.log("Before filtering:", newList);
+
+      // Filter logic for categories, correctly handling "Accessories"
+      let filteredList;
+      if (filtersFromUrl.category.toLowerCase() === "accessories") {
+        filteredList = newList.filter(
+          (product) =>
+            product.categories &&
+            product.categories
+              .map((category) => category.toLowerCase())
+              .includes("accessories") // Ensure case-insensitive match
+        );
+      } else {
+        filteredList = newList.filter(
+          (product) =>
+            product.categories &&
+            product.categories.includes(filtersFromUrl.category)
+        );
+      }
+
+      console.log("After filtering:", filteredList);
 
       // Apply additional filters excluding 'sort'
       let filters = {};
@@ -637,10 +651,15 @@ export default createStore({
         }
       });
 
+      console.log("Filtered List before MatchesFilter", filteredList);
+
       // Filter products based on filters
       filteredList = filteredList.filter((product) =>
         matchesFilter(product, filters)
       );
+
+      console.log("Filtered List after MatchesFilter", filteredList);
+      
 
       // Apply sorting to the filtered list
       applySorting(filteredList, filtersFromUrl.sort);
@@ -664,27 +683,41 @@ export default createStore({
       }
 
       function matchesFilter(product, filters) {
-        for (const [key, value] of Object.entries(filters)) {
+        return Object.entries(filters).every(([key, filterValues]) => {
+          const productValue = product[key];
+      
+          // If color, check if product colors contain any of the filter colors
           if (key === "color") {
-            if (
-              !product.colors.some((color) =>
-                value.includes(color.toLowerCase())
-              )
-            ) {
-              return false;
-            }
-          } else if (Array.isArray(product[key])) {
-            if (!product[key].some((k) => value.includes(k))) {
-              return false;
-            }
-          } else {
-            if (!value.includes(product[key])) {
-              return false;
-            }
+            const colorMatch = product.colors?.some(productColor =>
+              filterValues.includes(productColor.name?.toLowerCase())
+            );
+            console.log('Color match for', product.name, ':', colorMatch);
+            return colorMatch;
           }
-        }
-        return true;
+      
+          // If the product value is an array, check if it includes any of the filter values
+          if (Array.isArray(productValue)) {
+            const arrayMatch = filterValues.some(value =>
+              productValue.map(val => val.toLowerCase()).includes(value.toLowerCase())
+            );
+            console.log('Array match for', product.name, ':', arrayMatch);
+            return arrayMatch;
+          }
+      
+          // If it's a string or number, check for an exact match (case insensitive)
+          if (typeof productValue === 'string' || typeof productValue === 'number') {
+            const directMatch = filterValues.includes(productValue.toString().toLowerCase());
+            console.log('Direct match for', product.name, ':', directMatch);
+            return directMatch;
+          }
+      
+          // If none of the above, log and return false
+          console.log('No match for', product.name, 'and filter', key);
+          return false;
+        });
       }
+      
+      
     },
     FIND_PRODUCTS_FROM_ALL_LISTS_BY_NAME({ state, commit }, name) {
       let newList = [

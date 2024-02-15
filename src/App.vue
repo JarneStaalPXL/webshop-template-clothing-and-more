@@ -1,17 +1,16 @@
 <template>
-  <div>
+  <div class="app-container">
     <NotificationComponent />
-    <!-- Wrap other components for transition -->
     <transition name="fade" mode="out-in">
-      <div>
+      <div class="content-wrap">
         <NavigationComponent />
         <SearchComponent />
         <router-view v-slot="{ Component }">
           <component :is="Component" />
         </router-view>
-        <FooterComponent />
       </div>
     </transition>
+    <FooterComponent />
   </div>
 </template>
 
@@ -32,7 +31,16 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.content-wrap {
+  flex: 1;
+}
+
 /* Define enter and leave transitions */
 .fade-enter-active,
 .fade-leave-active {
