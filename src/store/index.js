@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import {redirectToStripeCheckoutWithProducts} from "../helpers/paymentHelper";
+import { redirectToStripeCheckoutWithProducts } from "../helpers/paymentHelper";
 
 const cartPersistPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -15,7 +15,7 @@ const cartPersistPlugin = (store) => {
 export default createStore({
   plugins: [cartPersistPlugin],
   state: {
-    showSearchDialog:false,
+    showSearchDialog: false,
     productsPerPage: 12,
     taxRate: 0.21,
     productDetailProduct: {
@@ -507,7 +507,6 @@ export default createStore({
       state.currency = currency;
     },
     addToCart(state, { product, color }) {
-
       // Find index of the product with the same id and color name
       const index = state.cart.findIndex(
         (item) =>
@@ -585,94 +584,108 @@ export default createStore({
     ) {
       const startIndex = (currentPage - 1) * state.productsPerPage;
       const endIndex = startIndex + state.productsPerPage;
-    
+
       let newList = [
         ...state.allProductsOfCategory,
         state.productDetailProduct,
         ...state.trendingProducts,
       ];
-    
+
       // Filter by name if specified
-      if(filtersFromUrl.name) {
-        let filteredByNameList = newList.filter((p) => p.name.toLowerCase().includes(filtersFromUrl.name.toLowerCase()));
-    
+      if (filtersFromUrl.name) {
+        let filteredByNameList = newList.filter((p) =>
+          p.name.toLowerCase().includes(filtersFromUrl.name.toLowerCase())
+        );
+
         // Apply sorting to the list filtered by name
         applySorting(filteredByNameList, filtersFromUrl.sort);
-    
+
         // Return the sorted and paginated list
         return {
           paginatedProducts: filteredByNameList.slice(startIndex, endIndex),
           totalProducts: filteredByNameList.length,
         };
       }
-    
+
       // Check if the query category is "all" or undefined
       if (!filtersFromUrl.category || filtersFromUrl.category === "all") {
         // Apply sorting to all products if specified
         applySorting(newList, filtersFromUrl.sort);
-    
+
         // Return all products after sorting, without applying filters
         return {
           paginatedProducts: newList.slice(startIndex, endIndex),
           totalProducts: newList.length,
         };
       }
-    
+
       // Filter logic for specific categories excluding "Accessories"
-      let filteredList = newList.filter((product) => product.categories && product.categories.includes(filtersFromUrl.category) && !product.categories.includes("Accessories"));
-    
+      let filteredList = newList.filter(
+        (product) =>
+          product.categories &&
+          product.categories.includes(filtersFromUrl.category) &&
+          !product.categories.includes("Accessories")
+      );
+
       // Apply additional filters excluding 'sort'
       let filters = {};
       Object.keys(filtersFromUrl).forEach((key) => {
-        if (key !== 'sort') {
-          filters[key] = filtersFromUrl[key].includes(',') ? filtersFromUrl[key].split(',') : [filtersFromUrl[key]];
+        if (key !== "sort") {
+          filters[key] = filtersFromUrl[key].includes(",")
+            ? filtersFromUrl[key].split(",")
+            : [filtersFromUrl[key]];
         }
       });
-    
+
       // Filter products based on filters
-      filteredList = filteredList.filter(product => matchesFilter(product, filters));
-    
+      filteredList = filteredList.filter((product) =>
+        matchesFilter(product, filters)
+      );
+
       // Apply sorting to the filtered list
       applySorting(filteredList, filtersFromUrl.sort);
-    
+
       // Pagination
       const paginatedProducts = filteredList.slice(startIndex, endIndex);
-    
+
       return {
         paginatedProducts,
         totalProducts: filteredList.length,
       };
-    
-    
-    function applySorting(products, sortType) {
-      if (sortType === "best-rating") {
-        products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      } else if (sortType === "price-low-to-high") {
-        products.sort((a, b) => Number(a.price) - Number(b.price));
-      } else if (sortType === "price-high-to-low") {
-        products.sort((a, b) => Number(b.price) - Number(a.price));
-      }
-    }
-    
-    function matchesFilter(product, filters) {
-      for (const [key, value] of Object.entries(filters)) {
-        if (key === "color") {
-          if (!product.colors.some(color => value.includes(color.toLowerCase()))) {
-            return false;
-          }
-        } else if (Array.isArray(product[key])) {
-          if (!product[key].some(k => value.includes(k))) {
-            return false;
-          }
-        } else {
-          if (!value.includes(product[key])) {
-            return false;
-          }
+
+      function applySorting(products, sortType) {
+        if (sortType === "best-rating") {
+          products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        } else if (sortType === "price-low-to-high") {
+          products.sort((a, b) => Number(a.price) - Number(b.price));
+        } else if (sortType === "price-high-to-low") {
+          products.sort((a, b) => Number(b.price) - Number(a.price));
         }
       }
-      return true;
-    }}
-    ,
+
+      function matchesFilter(product, filters) {
+        for (const [key, value] of Object.entries(filters)) {
+          if (key === "color") {
+            if (
+              !product.colors.some((color) =>
+                value.includes(color.toLowerCase())
+              )
+            ) {
+              return false;
+            }
+          } else if (Array.isArray(product[key])) {
+            if (!product[key].some((k) => value.includes(k))) {
+              return false;
+            }
+          } else {
+            if (!value.includes(product[key])) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+    },
     FIND_PRODUCTS_FROM_ALL_LISTS_BY_NAME({ state, commit }, name) {
       let newList = [
         ...state.allProductsOfCategory,
@@ -686,18 +699,18 @@ export default createStore({
       return products;
     },
 
-    SUBMIT_ORDER({ state, commit }, {checkoutForm, cart}) {
+    SUBMIT_ORDER({ state, commit }, { checkoutForm, cart }) {
       // First grab the payment method from the checkoutForm
       const paymentMethod = checkoutForm.paymentType;
 
       // Then submit the payment and the cart to your server
       console.log(checkoutForm);
-      if(paymentMethod === "stripe") {
+      if (paymentMethod === "stripe") {
         // Initiatate the payment process with Stripe
         console.log("Payment initiated with Stripe");
-        redirectToStripeCheckoutWithProducts(cart , state.currency.id);
+        redirectToStripeCheckoutWithProducts(cart, state.currency.id);
       }
-    }
+    },
   },
   modules: {},
 });
