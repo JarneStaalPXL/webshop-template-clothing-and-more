@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import {redirectToStripeCheckoutWithProducts} from "../helpers/stripeHelper";
+import {redirectToStripeCheckoutWithProducts} from "../helpers/paymentHelper";
 
 const cartPersistPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -15,6 +15,7 @@ const cartPersistPlugin = (store) => {
 export default createStore({
   plugins: [cartPersistPlugin],
   state: {
+    showSearchDialog:false,
     productsPerPage: 12,
     taxRate: 0.21,
     productDetailProduct: {
@@ -135,7 +136,7 @@ export default createStore({
         ],
         price: "65",
         colors: [
-          { name: "Gray", bgColor: "#ece7dd", selectedColor: "ring-black" },
+          { name: "Beige", bgColor: "#ece7dd", selectedColor: "ring-black" },
         ],
         description:
           "<p>The Classic Hoodie offers both comfort and style. Made from a blend of soft fabrics, it features a drawstring hood and kangaroo pocket for added warmth and convenience.</p>",
@@ -584,123 +585,105 @@ export default createStore({
     ) {
       const startIndex = (currentPage - 1) * state.productsPerPage;
       const endIndex = startIndex + state.productsPerPage;
-
+    
       let newList = [
         ...state.allProductsOfCategory,
         state.productDetailProduct,
         ...state.trendingProducts,
       ];
-
+    
+      // Filter by name if specified
+      if(filtersFromUrl.name) {
+        let filteredByNameList = newList.filter((p) => p.name.toLowerCase().includes(filtersFromUrl.name.toLowerCase()));
+    
+        // Apply sorting to the list filtered by name
+        applySorting(filteredByNameList, filtersFromUrl.sort);
+    
+        // Return the sorted and paginated list
+        return {
+          paginatedProducts: filteredByNameList.slice(startIndex, endIndex),
+          totalProducts: filteredByNameList.length,
+        };
+      }
+    
       // Check if the query category is "all" or undefined
       if (!filtersFromUrl.category || filtersFromUrl.category === "all") {
-        // Return all products without applying filters and sorting
+        // Apply sorting to all products if specified
+        applySorting(newList, filtersFromUrl.sort);
+    
+        // Return all products after sorting, without applying filters
         return {
           paginatedProducts: newList.slice(startIndex, endIndex),
           totalProducts: newList.length,
         };
       }
-
-      // Filter out products not in the selected categories and exclude "Accessories" if a specific category is chosen
-      let filteredList = newList.filter((product) => {
-        return (
-          product.categories &&
-          product.categories.includes(filtersFromUrl.category) &&
-          !product.categories.includes("Accessories")
-        );
-      });
-
-      // Create a separate filters object without the sort key
+    
+      // Filter logic for specific categories excluding "Accessories"
+      let filteredList = newList.filter((product) => product.categories && product.categories.includes(filtersFromUrl.category) && !product.categories.includes("Accessories"));
+    
+      // Apply additional filters excluding 'sort'
       let filters = {};
-      Object.keys(filtersFromUrl).forEach((filterKey) => {
-        if (filterKey !== "sort") {
-          // Exclude 'sort' from the filters
-          filters[filterKey] = filtersFromUrl[filterKey].includes(",")
-            ? filtersFromUrl[filterKey].split(",")
-            : [filtersFromUrl[filterKey]];
+      Object.keys(filtersFromUrl).forEach((key) => {
+        if (key !== 'sort') {
+          filters[key] = filtersFromUrl[key].includes(',') ? filtersFromUrl[key].split(',') : [filtersFromUrl[key]];
         }
       });
-
-      const normalizeColor = (color) =>
-        typeof color === "string" ? color.toLowerCase() : "";
-
-      const colorMatches = (productColors, filterColors) => {
-        if (!filterColors || filterColors.length === 0) return true;
-        return (
-          productColors &&
-          productColors.some((productColor) =>
-            filterColors.some(
-              (filterColor) =>
-                normalizeColor(productColor.name) ===
-                  normalizeColor(filterColor) ||
-                normalizeColor(productColor.bgColor) ===
-                  normalizeColor(filterColor)
-            )
-          )
-        );
-      };
-
-      const matchesFilter = (product, filters) => {
-        for (const filterKey in filters) {
-          const filterValue = filters[filterKey];
-
-          if (filters.category[0] === "accessories") {
-            if (product.categories.includes("accessories")) {
-              return true;
-            }
-          }
-
-          // Get the product attribute; handle cases where the attribute may be undefined
-          const productAttribute =
-            product[filterKey] !== undefined ? product[filterKey] : [];
-
-          if (filterKey === "color") {
-            if (!colorMatches(product.colors, filterValue)) return false;
-          } else {
-            // If productAttribute is an array, check if filterValue is in that array
-            if (Array.isArray(productAttribute)) {
-              if (
-                !productAttribute.some((attr) => filterValue.includes(attr))
-              ) {
-                return false;
-              }
-            } else {
-              // If productAttribute is a string or other non-array, check if filterValue includes it
-              if (!filterValue.includes(productAttribute)) {
-                return false;
-              }
-            }
-          }
-        }
-        return true; // Product passes all filters
-      };
-
-      let filteredProducts = filteredList.filter((product) =>
-        matchesFilter(product, filters)
-      );
-
-      // Sort based on the selected sorter
-      if (filtersFromUrl.sort === "best-rating") {
-        filteredProducts.sort((a, b) => {
-          const ratingA = a.rating !== undefined ? a.rating : -1;
-          const ratingB = b.rating !== undefined ? b.rating : -1;
-          return ratingB - ratingA;
-        });
-      }
-
-      if (filtersFromUrl.sort === "price-low-to-high") {
-        filteredProducts.sort((a, b) => Number(a.price) - Number(b.price));
-      }
-      if (filtersFromUrl.sort === "price-high-to-low") {
-        filteredProducts.sort((a, b) => Number(b.price) - Number(a.price));
-      }
-
-      // Continue with pagination
-      let paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
+    
+      // Filter products based on filters
+      filteredList = filteredList.filter(product => matchesFilter(product, filters));
+    
+      // Apply sorting to the filtered list
+      applySorting(filteredList, filtersFromUrl.sort);
+    
+      // Pagination
+      const paginatedProducts = filteredList.slice(startIndex, endIndex);
+    
       return {
         paginatedProducts,
-        totalProducts: filteredProducts.length,
+        totalProducts: filteredList.length,
       };
+    
+    
+    function applySorting(products, sortType) {
+      if (sortType === "best-rating") {
+        products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else if (sortType === "price-low-to-high") {
+        products.sort((a, b) => Number(a.price) - Number(b.price));
+      } else if (sortType === "price-high-to-low") {
+        products.sort((a, b) => Number(b.price) - Number(a.price));
+      }
+    }
+    
+    function matchesFilter(product, filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (key === "color") {
+          if (!product.colors.some(color => value.includes(color.toLowerCase()))) {
+            return false;
+          }
+        } else if (Array.isArray(product[key])) {
+          if (!product[key].some(k => value.includes(k))) {
+            return false;
+          }
+        } else {
+          if (!value.includes(product[key])) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }}
+    ,
+    FIND_PRODUCTS_FROM_ALL_LISTS_BY_NAME({ state, commit }, name) {
+      let newList = [
+        ...state.allProductsOfCategory,
+        ...[state.productDetailProduct], // Spread the productDetailProduct as an array
+        ...state.trendingProducts,
+      ];
+      console.log(name);
+      let products = newList.filter((p) => p.name.toLowerCase().includes(name));
+      console.log(products);
+
+      return products;
     },
 
     SUBMIT_ORDER({ state, commit }, {checkoutForm, cart}) {

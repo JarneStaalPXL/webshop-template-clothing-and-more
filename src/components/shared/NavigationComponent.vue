@@ -159,10 +159,11 @@
     </TransitionRoot>
 
     <header class="relative bg-white" id="navbar">
+      <!-- Top bar -->
       <p
         class="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8"
       >
-        Get free delivery on orders over {{ selected.symbol }} 100
+        Get free delivery on orders over {{ $store.state.currency.symbol }} 100
       </p>
 
       <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -411,7 +412,10 @@
 
               <!-- Search -->
               <div class="flex lg:ml-6">
-                <a href="#" class="p-2 text-gray-400 hover:text-gray-500">
+                <a
+                  @click="$store.state.showSearchDialog = true"
+                  class="p-2 text-gray-400 hover:text-gray-500 cursor-pointer"
+                >
                   <span class="sr-only">Search</span>
                   <MagnifyingGlassIcon class="h-6 w-6" aria-hidden="true" />
                 </a>
@@ -469,6 +473,7 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
 } from "@heroicons/vue/24/outline";
+
 export default {
   name: "NavigationComponent",
   components: {

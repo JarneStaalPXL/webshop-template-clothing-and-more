@@ -5,6 +5,7 @@
     <transition name="fade" mode="out-in">
       <div>
         <NavigationComponent />
+        <SearchComponent />
         <router-view v-slot="{ Component }">
           <component :is="Component" />
         </router-view>
@@ -15,6 +16,7 @@
 </template>
 
 <script>
+import SearchComponent from "./components/shared/SearchComponent.vue";
 import NavigationComponent from "./components/shared/NavigationComponent.vue";
 import FooterComponent from "./components/shared/FooterComponent.vue";
 import NotificationComponent from "./components/shared/NotificationComponent.vue";
@@ -25,6 +27,7 @@ export default {
     FooterComponent,
     NavigationComponent,
     NotificationComponent,
+    SearchComponent,
   },
 };
 </script>

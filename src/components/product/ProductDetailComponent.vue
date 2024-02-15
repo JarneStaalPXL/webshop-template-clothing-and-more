@@ -242,17 +242,28 @@ export default {
       currencySymbol: "$", // Assuming default currency symbol
     };
   },
+  watch: {
+    "$route.params.id": {
+      immediate: true,
+      handler(newId) {
+        this.getProduct(newId);
+      },
+    },
+  },
   async mounted() {
-    this.product = await this.$store.dispatch(
-      "FIND_PRODUCT_FROM_ALL_LISTS",
-      this.$route.params.id
-    );
+    await this.getProduct();
 
     if (this.product.colors) {
       this.selectedColor = this.product.colors[0];
     }
   },
   methods: {
+    async getProduct() {
+      this.product = await this.$store.dispatch(
+        "FIND_PRODUCT_FROM_ALL_LISTS",
+        this.$route.params.id
+      );
+    },
     addToCart({ product, selectedColor }) {
       this.$store.commit("addToCart", {
         product: product,

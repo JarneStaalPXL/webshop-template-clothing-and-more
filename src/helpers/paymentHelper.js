@@ -1,14 +1,17 @@
 import { loadStripe } from "@stripe/stripe-js";
 
 async function redirectToStripeCheckoutWithProducts(cart, currency) {
-    console.log("🚀 ~ redirectToStripeCheckoutWithProducts ~ products:", cart);
-
     let products = cart.map((product) => { 
+        let productName = product.product.name;
+        if (product.color) {
+            productName += ` (${product.color.name})`;
+        }
+
         return {
             price_data: {
                 currency: currency,
                 product_data: {
-                    name: product.product.name,
+                    name: productName,
                     images: [product.product.images[0].src],
                 },
                 unit_amount: product.product.price * 100,
@@ -22,7 +25,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
             currency: currency,
             product_data: {
                 name: "Shipping",
-                images: ["https://drive.google.com/uc?id=1u7Nc7AXVs5lRMZHX8Pa8X58uFt6ZW0FW"],
+                images: ["https://raw.githubusercontent.com/JarneStaalPXL/webshop-template-clothing-and-more/main/src/assets/shipping.svg?token=GHSAT0AAAAAACKGJAIEPK4OTIWKIHPVQXJGZON2STQ"],
             },
             unit_amount: cart.shippingEstimate * 100,
         },
@@ -34,15 +37,13 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
             currency: currency,
             product_data: {
                 name: "Taxes",
-                // images: ["https://www.flaticon.com/svg/static/icons/svg/25/25694.svg"],
+                images: ["https://raw.githubusercontent.com/JarneStaalPXL/webshop-template-clothing-and-more/main/src/assets/taxes.svg?token=GHSAT0AAAAAACKGJAIE4V3VYZMDPERFY4NUZON2T2Q"],
             },
             unit_amount: cart.taxEstimate * 100,
         },
         quantity: 1,
         
     })
-
-    console.log("products",products);
     
     const response = await fetch("http://localhost:3000/create-checkout-session", {
         method: "POST",

@@ -2,8 +2,17 @@
   <div class="py-6 sm:py-0">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div
+          class="px-4 sm:p-6"
+          :style="{ paddingBottom: '4px' }"
+          v-if="$route.query.name"
+        >
+          You searched for <b>{{ $route.query.name }}</b>
+        </div>
+
         <div class="px-4 py-5 sm:p-6">
           <!-- Adjusted grid to lg:grid-cols-3 for 3 products per row on lg screens -->
+
           <div
             class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8"
           >
@@ -30,7 +39,9 @@
               </div>
             </div>
           </div>
-          <div v-if="products.length <= 0">No products found with those filters</div>
+          <div class="mt-3 italic" v-if="products.length <= 0">
+            No products found with those filters
+          </div>
         </div>
 
         <div class="border-t border-gray-200 bg-white px-4 py-3 sm:px-6">

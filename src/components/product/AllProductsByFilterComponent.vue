@@ -117,7 +117,7 @@
           class="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24"
         >
           <h1 class="text-4xl font-bold tracking-tight text-gray-900">
-            Products ({{ $route.query.category }})
+            Products {{ $route.query.category ? "(" + $route.query.category + ")" : "" }}
           </h1>
 
           <div class="flex items-center">
