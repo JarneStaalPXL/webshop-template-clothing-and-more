@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import {redirectToStripeCheckout} from "../helpers/stripeHelper";
+import {redirectToStripeCheckoutWithProducts} from "../helpers/stripeHelper";
 
 const cartPersistPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -712,7 +712,7 @@ export default createStore({
       if(paymentMethod === "stripe") {
         // Initiatate the payment process with Stripe
         console.log("Payment initiated with Stripe");
-        redirectToStripeCheckout(cart.orderTotal , state.currency.id);
+        redirectToStripeCheckoutWithProducts(cart , state.currency.id);
       }
     }
   },
