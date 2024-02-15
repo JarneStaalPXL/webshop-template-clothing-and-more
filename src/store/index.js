@@ -684,7 +684,10 @@ export default createStore({
 
       function matchesFilter(product, filters) {
         return Object.entries(filters).every(([key, filterValues]) => {
+          console.log("🚀 ~ returnObject.entries ~ key:", key)
           const productValue = product[key];
+
+          
       
           // If color, check if product colors contain any of the filter colors
           if (key === "color") {
@@ -693,6 +696,14 @@ export default createStore({
             );
             console.log('Color match for', product.name, ':', colorMatch);
             return colorMatch;
+          }
+
+          if(key === "category") {
+            const categoryMatch = product.categories?.some(productCategory =>
+              filterValues.includes(productCategory.toLowerCase())
+            );
+            console.log('Category match for', product.name, ':', categoryMatch);
+            return categoryMatch;
           }
       
           // If the product value is an array, check if it includes any of the filter values
