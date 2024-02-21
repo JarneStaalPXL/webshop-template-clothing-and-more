@@ -2,7 +2,7 @@
   <CategoryProductsComponent
     :category="category"
     :mainCategory="mainCategory"
-    :products="$store.state.allProductsOfCategory"
+    :products="allProductsOfCategory"
   />
 </template>
 
@@ -28,18 +28,16 @@ export default {
     return {
       category: this.$route.params.category,
       mainCategory: this.$route.params.maincategory,
+      allProductsOfCategory: [],
     };
   },
   created() {
     this.category = this.$route.params.category;
-    this.getProducts();
   },
   methods: {
-    getProducts() {},
     updateRouteParams() {
       this.category = this.$route.params.category;
       this.mainCategory = this.$route.params.maincategory;
-      this.getProducts();
     },
   },
 };

@@ -1,7 +1,11 @@
 import { createStore } from "vuex";
 import { redirectToStripeCheckoutWithProducts } from "../helpers/paymentHelper";
 import router from "../router";
-import {createGETRequestAsync, createPOSTRequestAsync} from "../helpers/requestHelper";
+import {
+  createGETRequestAsync,
+  createPOSTRequestAsync,
+} from "../helpers/requestHelper";
+import { applySorting, matchesFilter } from "../helpers/productHelper";
 
 const cartPersistPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -59,8 +63,7 @@ export default createStore({
         {
           id: 1,
           name: "Angled view",
-          src:
-            "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
+          src: "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
           alt: "Angled front view with bag zipped and handles upright.",
         },
       ],
@@ -121,13 +124,14 @@ export default createStore({
           {
             id: 2,
             name: "Angled view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
+            src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
             alt: "Front of men's Basic Tee in black.",
           },
         ],
         price: "10",
-        colors: [{ name: "Black", bgColor: "black", selectedColor: "ring-black" }],
+        colors: [
+          { name: "Black", bgColor: "black", selectedColor: "ring-black" },
+        ],
         description:
           "<p>A classic staple, the Basic Tee is made from soft, breathable cotton for all-day comfort. Its versatile design makes it perfect for layering or wearing on its own.</p>",
         details: [
@@ -158,8 +162,7 @@ export default createStore({
           {
             id: 3,
             name: "Front view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-02.jpg", // Replace with the actual URL of the t-shirt image
+            src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-02.jpg", // Replace with the actual URL of the t-shirt image
             alt: "Front of men's Essential Cotton T-Shirt in beige.",
           },
         ],
@@ -201,13 +204,14 @@ export default createStore({
           {
             id: 4,
             name: "Front view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-03.jpg",
+            src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-03.jpg",
             alt: "Front of men's Slim Fit Tshirt in black.",
           },
         ],
         price: "50",
-        colors: [{ name: "Black", bgColor: "#52505b", selectedColor: "ring-black" }],
+        colors: [
+          { name: "Black", bgColor: "#52505b", selectedColor: "ring-black" },
+        ],
         description:
           "<p>The Slim Fit Tshirt combine style and comfort effortlessly. Made from stretch denim, they offer a sleek, modern silhouette while providing flexibility for everyday wear.</p>",
         details: [
@@ -233,13 +237,14 @@ export default createStore({
           {
             id: 5,
             name: "Product view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-04.jpg", // Keep or update the image URL if you have a new one
+            src: "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-04.jpg", // Keep or update the image URL if you have a new one
             alt: "Casual T-Shirt in pink.",
           },
         ],
         price: "25",
-        colors: [{ name: "Pink", bgColor: "#f7e2d1", selectedColor: "ring-black" }],
+        colors: [
+          { name: "Pink", bgColor: "#f7e2d1", selectedColor: "ring-black" },
+        ],
         description:
           "<p>This casual t-shirt is perfect for everyday wear. Made from soft fabric, it offers comfort and style with its unique dot pattern design.</p>",
         details: [
@@ -265,7 +270,7 @@ export default createStore({
         id: 1,
         name: "Leather Long Wallet",
         category: "women",
-        color: "#d5965f",  
+        color: "#d5965f",
         size: { height: 10, width: 20 },
         colors: [
           {
@@ -282,8 +287,7 @@ export default createStore({
           {
             id: 6,
             name: "Product view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-02.jpg",
+            src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-02.jpg",
             alt: "Hand stitched, orange leather long wallet.",
           },
         ],
@@ -328,8 +332,7 @@ export default createStore({
           {
             id: 7,
             name: "Product view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-01.jpg", // Replace with the actual URL of the desk organizer image
+            src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-01.jpg", // Replace with the actual URL of the desk organizer image
             alt: "Elegant desk organizer set in white and wood.",
           },
         ],
@@ -350,7 +353,7 @@ export default createStore({
             items: ["Wood", "Plastic compartments"],
           },
         ],
-        categories: ["Accessories", "Desk Organizers"], 
+        categories: ["Accessories", "Desk Organizers"],
       },
       {
         rating: 3,
@@ -374,8 +377,7 @@ export default createStore({
           {
             id: 8,
             name: "Product view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-03.jpg",
+            src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-03.jpg",
             alt: "Two black precision roller pens.",
           },
         ],
@@ -384,7 +386,11 @@ export default createStore({
         details: [
           {
             name: "Features",
-            items: ["Precision rollerball tip", "Ergonomic design", "Waterproof ink"],
+            items: [
+              "Precision rollerball tip",
+              "Ergonomic design",
+              "Waterproof ink",
+            ],
           },
           {
             name: "Materials",
@@ -421,8 +427,7 @@ export default createStore({
           {
             id: 9,
             name: "Product view",
-            src:
-              "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-04.jpg",
+            src: "https://tailwindui.com/img/ecommerce-images/home-page-04-trending-product-04.jpg",
             alt: "Three-piece inspirational notebook set in kraft and black.",
           },
         ],
@@ -431,14 +436,18 @@ export default createStore({
         details: [
           {
             name: "Features",
-            items: ["3-piece set", "Inspirational quotes", "Compact and portable"],
+            items: [
+              "3-piece set",
+              "Inspirational quotes",
+              "Compact and portable",
+            ],
           },
           {
             name: "Materials",
             items: ["Kraft paper", "Recycled paper"],
           },
         ],
-        categories: ["Accessories", "Stationery", "Notebooks", "Gift Ideas"], 
+        categories: ["Accessories", "Stationery", "Notebooks", "Gift Ideas"],
       },
     ],
     currency: JSON.parse(localStorage.getItem("currency")) || {
@@ -542,8 +551,8 @@ export default createStore({
     },
     TRIGGER_NOTIFICATION(state, notification) {
       state.notification = notification;
-      const {duration} = notification;
-      if(duration){
+      const { duration } = notification;
+      if (duration) {
         setTimeout(() => {
           state.notification.show = false;
         }, duration);
@@ -573,7 +582,9 @@ export default createStore({
       });
     },
     updateProductQuantity(state, { productId, quantity }) {
-      const productIndex = state.cart.findIndex((product) => product.id === productId);
+      const productIndex = state.cart.findIndex(
+        (product) => product.id === productId
+      );
       if (productIndex !== -1) {
         state.cart[productIndex].quantity = quantity;
         // Persist the updated cart to localStorage
@@ -585,12 +596,13 @@ export default createStore({
     },
     addToCart(state, { product, color }) {
       // Find index of the product with the same id and color name
-      if(!Array.isArray(state.cart)){
+      if (!Array.isArray(state.cart)) {
         state.cart = [];
       }
 
       const index = state.cart.findIndex(
-        (item) => item.product.id === product.id && item.color.name === color.name
+        (item) =>
+          item.product.id === product.id && item.color.name === color.name
       );
 
       if (index !== -1) {
@@ -621,7 +633,9 @@ export default createStore({
     },
 
     removeProductFromCart(state, productId) {
-      const index = state.cart.findIndex((item) => item.product.id === productId);
+      const index = state.cart.findIndex(
+        (item) => item.product.id === productId
+      );
       if (index !== -1) {
         state.cart.splice(index, 1);
         // Persist the updated cart to localStorage
@@ -637,20 +651,25 @@ export default createStore({
       // Fetch all products from your API here
       console.log("Fetching products from Strapi");
 
-      const response = await createGETRequestAsync("/product-detail/getAllProducts");
+      const response = await createGETRequestAsync(
+        "/product-detail/getAllProducts"
+      );
       const products = await response.json();
-     
+
       commit("SET_PRODUCTS", products);
     },
     async CREATE_USER_ON_STRAPI({ state, commit }, user) {
       // Submit the user to your API here
       console.log(`Creating user: ${user}`);
-      
-      const response = await createPOSTRequestAsync("/authentication/signInWithGoogle", {
-        email: user.email,
-        name: user.displayName,
-        uid: user.uid,
-      });
+
+      const response = await createPOSTRequestAsync(
+        "/authentication/signInWithGoogle",
+        {
+          email: user.email,
+          name: user.displayName,
+          uid: user.uid,
+        }
+      );
 
       const data = await response.json();
       console.log(data);
@@ -665,16 +684,10 @@ export default createStore({
       console.log(`Submitting email: ${email}`);
     },
     async FIND_PRODUCT_FROM_ALL_LISTS({ state, commit }, productId) {
-      // let newList = [
-      //   ...state.allProductsOfCategory,
-      //   ...[state.productDetailProduct], // Spread the productDetailProduct as an array
-      //   ...state.trendingProducts,
-      // ];
-
-      const response = await createGETRequestAsync(`/product-detail/getProductById/${productId}`);
+      const response = await createGETRequestAsync(
+        `/product-detail/getProductById/${productId}`
+      );
       const product = await response.json();
-
-      console.log("🚀 ~ FIND_PRODUCT_FROM_ALL_LISTS ~ product:", product)
       return product;
     },
     /**
@@ -693,143 +706,36 @@ export default createStore({
       const startIndex = (currentPage - 1) * state.productsPerPage;
       const endIndex = startIndex + state.productsPerPage;
 
+      const response =
+        await createPOSTRequestAsync("/product-detail/getFilteredProducts", {
+          filters: filtersFromUrl,
+        }) || [];
 
-      // Filter by name if specified
-      if (filtersFromUrl.name) {
-        let filteredByNameList = state.products.filter((p) =>
-          p.name.toLowerCase().includes(filtersFromUrl.name.toLowerCase())
-        );
+        const filteredList = await response.json();
 
-        // Apply sorting to the list filtered by name
-        applySorting(filteredByNameList, filtersFromUrl.sort);
 
-        // Return the sorted and paginated list
-        return {
-          paginatedProducts: filteredByNameList.slice(startIndex, endIndex),
-          totalProducts: filteredByNameList.length,
-        };
-      }
-
-      // Check if the query category is "all" or undefined
-      if (!filtersFromUrl.category || filtersFromUrl.category === "all") {
-        // Apply sorting to all products if specified
-        applySorting(state.products, filtersFromUrl.sort);
-
-        // Return all products after sorting, without applying filters
-        return {
-          paginatedProducts: state.products.slice(startIndex, endIndex),
-          totalProducts: state.products.length,
-        };
-      }
-
-      console.log("Before filtering:", state.products);
-
-      // Filter logic for categories, correctly handling "Accessories"
-      let filteredList;
-      if (filtersFromUrl.category.toLowerCase() === "accessories") {
-        filteredList = state.products.filter(
-          (product) =>
-            product.categories &&
-            product.categories
-              .map((category) => category.toLowerCase())
-              .includes("accessories") // Ensure case-insensitive match
-        );
-      } else {
-        filteredList = state.products.filter(
-          (product) =>
-            product.categories && product.categories.includes(filtersFromUrl.category)
-        );
-      }
-
-      console.log("After filtering:", filteredList);
-
-      // Apply additional filters excluding 'sort'
-      let filters = {};
-      Object.keys(filtersFromUrl).forEach((key) => {
-        if (key !== "sort") {
-          filters[key] = filtersFromUrl[key].includes(",")
-            ? filtersFromUrl[key].split(",")
-            : [filtersFromUrl[key]];
-        }
-      });
-
-      console.log("Filtered List before MatchesFilter", filteredList);
-
-      // Filter products based on filters
-      filteredList = filteredList.filter((product) => matchesFilter(product, filters));
-
-      console.log("Filtered List after MatchesFilter", filteredList);
-
-      // Apply sorting to the filtered list
-      applySorting(filteredList, filtersFromUrl.sort);
+        console.log("🚀 ~ filteredList:", filteredList)
 
       // Pagination
+      if(!Array.isArray(filteredList)) {
+        return {
+          paginatedProducts: [],
+          totalProducts: 0,
+        };
+      }
       const paginatedProducts = filteredList.slice(startIndex, endIndex);
+      console.log("🚀 ~ paginatedProducts:", paginatedProducts)
 
       return {
         paginatedProducts,
         totalProducts: filteredList.length,
       };
-
-      function applySorting(products, sortType) {
-        if (sortType === "best-rating") {
-          products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        } else if (sortType === "price-low-to-high") {
-          products.sort((a, b) => Number(a.price) - Number(b.price));
-        } else if (sortType === "price-high-to-low") {
-          products.sort((a, b) => Number(b.price) - Number(a.price));
-        }
-      }
-
-      function matchesFilter(product, filters) {
-        return Object.entries(filters).every(([key, filterValues]) => {
-          console.log("🚀 ~ returnObject.entries ~ key:", key);
-          const productValue = product[key];
-
-          // If color, check if product colors contain any of the filter colors
-          if (key === "color") {
-            const colorMatch = product.colors?.some((productColor) =>
-              filterValues.includes(productColor.name?.toLowerCase())
-            );
-            console.log("Color match for", product.name, ":", colorMatch);
-            return colorMatch;
-          }
-
-          if (key === "category") {
-            const categoryMatch = product.categories?.some((productCategory) =>
-              filterValues.includes(productCategory.toLowerCase())
-            );
-            console.log("Category match for", product.name, ":", categoryMatch);
-            return categoryMatch;
-          }
-
-          // If the product value is an array, check if it includes any of the filter values
-          if (Array.isArray(productValue)) {
-            const arrayMatch = filterValues.some((value) =>
-              productValue.map((val) => val.toLowerCase()).includes(value.toLowerCase())
-            );
-            console.log("Array match for", product.name, ":", arrayMatch);
-            return arrayMatch;
-          }
-
-          // If it's a string or number, check for an exact match (case insensitive)
-          if (typeof productValue === "string" || typeof productValue === "number") {
-            const directMatch = filterValues.includes(
-              productValue.toString().toLowerCase()
-            );
-            console.log("Direct match for", product.name, ":", directMatch);
-            return directMatch;
-          }
-
-          // If none of the above, log and return false
-          console.log("No match for", product.name, "and filter", key);
-          return false;
-        });
-      }
     },
     FIND_PRODUCTS_FROM_ALL_LISTS_BY_NAME({ state, commit }, name) {
       console.log(name);
-      let products = state.products.filter((p) => p.name.toLowerCase().includes(name));
+      let products = state.products.filter((p) =>
+        p.name.toLowerCase().includes(name)
+      );
       console.log(products);
 
       return products;

@@ -75,18 +75,6 @@ export default {
   data() {
     return {};
   },
-  mounted() {
-    setTimeout(() => {
-      const pd = JSON.parse(JSON.stringify(this.$store.state.products.slice(4, 8)));
-      console.log("🚀 ~ mounted ~ pd:", pd);
-
-      pd.forEach((element) => {
-        if (element.ImagesWithAlternativeText[0] !== undefined) {
-          console.log(element.ImagesWithAlternativeText[0].images[0].url);
-        }
-      });
-    }, 3000);
-  },
 };
 </script>
 
