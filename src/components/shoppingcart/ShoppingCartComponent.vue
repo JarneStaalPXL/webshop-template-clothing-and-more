@@ -20,8 +20,16 @@
             >
               <div class="flex-shrink-0">
                 <img
-                  :src="product.product.images[0].src"
-                  :alt="product.product.images[0].alt"
+                  :src="
+                    product.product.ImagesWithAlternativeText[0]
+                      ? product.product.ImagesWithAlternativeText[0].images[0].url
+                      : 'https://via.placeholder.com/300'
+                  "
+                  :alt="
+                    product.product.ImagesWithAlternativeText[0]
+                      ? product.product.ImagesWithAlternativeText[0].alt
+                      : ''
+                  "
                   class="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
                 />
               </div>
@@ -126,7 +134,7 @@
                     <div
                       :class="`rounded-full border border-transparent ring-2 ring-black ring-offset-2 ring-offset-white`"
                       :style="{
-                        background: product.color.bgColor,
+                        background: product.color.color,
                         width: '25px',
                         height: '25px',
                       }"
@@ -150,7 +158,7 @@
                       {{
                         product.product.inStock
                           ? "In stock"
-                          : `Ships in ${product.product.leadTime}`
+                          : `Ships in ${product.product.shipsInAmountOfDays}`
                       }}
                     </span>
                   </div>
@@ -267,14 +275,19 @@ export default {
   },
   computed: {
     subtotal() {
-      let cart = JSON.parse(localStorage.getItem("cart"));
+      let cart = JSON.parse(localStorage.getItem("cart")) || { subtotal: 0 };
       cart.subtotal = calculateSubtotal(this.cart);
       localStorage.setItem("cart", JSON.stringify(cart));
       return cart.subtotal;
     },
     shippingEstimate() {
-      let cart = JSON.parse(localStorage.getItem("cart"));
-      cart.shippingEstimate = calculateShippingEstimate(this.subtotal);
+      let cart = JSON.parse(localStorage.getItem("cart")) || { shippingEstimate: 0 };
+      cart.shippingEstimate = calculateShippingEstimate(
+        this.cart,
+        this.subtotal,
+        null,
+        this.taxEstimate
+      );
       localStorage.setItem("cart", JSON.stringify(cart));
       return cart.shippingEstimate;
     },
@@ -294,6 +307,9 @@ export default {
       localStorage.setItem("cart", JSON.stringify(cart));
       return cart.orderTotal;
     },
+  },
+  mounted() {
+    console.log(this.$store.state.cart);
   },
   methods: {
     checkout() {

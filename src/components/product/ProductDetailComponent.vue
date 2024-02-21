@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white" v-if="product">
     <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
       <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
         <!-- Image gallery -->
@@ -8,7 +8,7 @@
           <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
             <TabList class="grid grid-cols-4 gap-6">
               <Tab
-                v-for="image in product.images"
+                v-for="image in product.ImagesWithAlternativeText[0].images"
                 :key="image.id"
                 class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                 v-slot="{ selected }"
@@ -16,7 +16,8 @@
                 <span class="sr-only">{{ image.name }}</span>
                 <span class="absolute inset-0 overflow-hidden rounded-md">
                   <img
-                    :src="image.src"
+                    :src="image.url"
+                    :alt="product.ImagesWithAlternativeText[0].alt"
                     alt=""
                     class="h-full w-full object-cover object-center"
                   />
@@ -33,10 +34,13 @@
           </div>
 
           <TabPanels class="aspect-h-1 aspect-w-1 w-full">
-            <TabPanel v-for="image in product.images" :key="image.id">
+            <TabPanel
+              v-for="image in product.ImagesWithAlternativeText[0].images"
+              :key="image.id"
+            >
               <img
-                :src="image.src"
-                :alt="image.alt"
+                :src="image.url"
+                :alt="product.ImagesWithAlternativeText[0].alt"
                 class="h-full w-full object-cover object-center sm:rounded-lg"
               />
             </TabPanel>
@@ -77,13 +81,16 @@
 
           <div class="mt-6">
             <h3 class="sr-only">Description</h3>
-
             <div class="space-y-6 text-base text-gray-700" v-html="product.description" />
           </div>
 
           <form class="mt-6">
             <!-- Colors -->
-            <div v-if="product.colors !== undefined && product.colors.length > 0">
+            <div
+              v-if="
+                product.product_colors !== undefined && product.product_colors.length > 0
+              "
+            >
               <h3 class="text-sm text-gray-600">Color</h3>
 
               <RadioGroup v-model="selectedColor" class="mt-2">
@@ -91,25 +98,25 @@
                 <span class="flex items-center space-x-3">
                   <RadioGroupOption
                     as="template"
-                    v-for="color in product.colors"
-                    :key="color.name"
-                    :value="color"
+                    v-for="item in product.product_colors"
+                    :key="item.name"
+                    :value="item"
                     v-slot="{ active, checked }"
                   >
                     <div
                       :class="[
-                        color.selectedColor,
+                        colorSelectorBorderColor,
                         active && checked ? 'ring ring-offset-1' : '',
                         !active && checked ? 'ring-2' : '',
                         'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none',
                       ]"
                     >
                       <RadioGroupLabel as="span" class="sr-only">{{
-                        color.name
+                        item.name
                       }}</RadioGroupLabel>
                       <span
                         aria-hidden="true"
-                        :style="{ background: color.bgColor }"
+                        :style="{ background: item.color }"
                         :class="[
                           'h-8 w-8 rounded-full border border-black border-opacity-10',
                         ]"
@@ -162,7 +169,7 @@
                         open ? 'text-indigo-600' : 'text-gray-900',
                         'text-sm font-medium',
                       ]"
-                      >{{ detail.name }}</span
+                      >{{ detail.detail_type }}</span
                     >
                     <span class="ml-6 flex items-center">
                       <PlusIcon
@@ -180,7 +187,9 @@
                 </h3>
                 <DisclosurePanel as="div" class="prose prose-sm pb-6">
                   <ul role="list">
-                    <li v-for="item in detail.items" :key="item">{{ item }}</li>
+                    <li v-for="item in detail.detail_items" :key="item">
+                      {{ item.name }}
+                    </li>
                   </ul>
                 </DisclosurePanel>
               </Disclosure>
@@ -239,7 +248,7 @@ export default {
     return {
       product: {},
       selectedColor: null,
-      currencySymbol: "$", // Assuming default currency symbol
+      colorSelectorBorderColor: import.meta.env.VITE_COLOR_SELECTOR_BORDER_COLOR,
     };
   },
   watch: {
@@ -253,8 +262,8 @@ export default {
   async mounted() {
     await this.getProduct();
 
-    if (this.product.colors) {
-      this.selectedColor = this.product.colors[0];
+    if (this.product.product_colors) {
+      this.selectedColor = this.product.product_colors[0];
     }
   },
   methods: {

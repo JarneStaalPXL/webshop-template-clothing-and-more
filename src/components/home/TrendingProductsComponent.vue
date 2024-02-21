@@ -1,20 +1,23 @@
 <template>
   <section aria-labelledby="trending-heading">
     <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:pt-32">
-      <div class="md:flex md:items-center md:justify-between">
+      <div
+        class="md:flex md:items-center md:justify-between"
+        v-if="$store.state.products && $store.state.products.length > 0"
+      >
         <h2
           id="favorites-heading"
           class="text-2xl font-bold tracking-tight text-gray-900"
         >
           Trending Products
         </h2>
-        <a
-          href="#"
+        <!-- <router-link :to=""
+          
           class="hidden text-sm font-medium text-indigo-600 hover:text-indigo-500 md:block"
         >
           Shop the collection
           <span aria-hidden="true"> &rarr;</span>
-        </a>
+        </router-link> -->
       </div>
 
       <div
@@ -22,7 +25,7 @@
       >
         <router-link
           :to="'/product/' + product.id"
-          v-for="product in $store.state.trendingProducts"
+          v-for="product in $store.state.products.slice(4, 8)"
           :key="product.id"
         >
           <div class="group relative">
@@ -30,8 +33,16 @@
               class="h-56 w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-72 xl:h-80"
             >
               <img
-                :src="product.images[0].src"
-                :alt="product.images[0].alt"
+                :src="
+                  product.ImagesWithAlternativeText[0]
+                    ? product.ImagesWithAlternativeText[0].images[0].url
+                    : 'https://via.placeholder.com/300'
+                "
+                :alt="
+                  product.ImagesWithAlternativeText[0]
+                    ? product.ImagesWithAlternativeText[0].alt
+                    : ''
+                "
                 class="h-full w-full object-cover object-center"
               />
             </div>
@@ -41,7 +52,6 @@
                 {{ product.name }}
               </a>
             </h3>
-            <p class="mt-1 text-sm text-gray-500">{{ product.color }}</p>
             <p class="mt-1 text-sm font-medium text-gray-900">
               {{ $store.state.currency.symbol }} {{ product.price }}
             </p>
@@ -49,12 +59,12 @@
         </router-link>
       </div>
 
-      <div class="mt-8 text-sm md:hidden">
+      <!-- <div class="mt-8 text-sm md:hidden">
         <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
           Shop the collection
           <span aria-hidden="true"> &rarr;</span>
         </a>
-      </div>
+      </div> -->
     </div>
   </section>
 </template>
@@ -64,6 +74,18 @@ export default {
   name: "TrendingProductsComponent",
   data() {
     return {};
+  },
+  mounted() {
+    setTimeout(() => {
+      const pd = JSON.parse(JSON.stringify(this.$store.state.products.slice(4, 8)));
+      console.log("🚀 ~ mounted ~ pd:", pd);
+
+      pd.forEach((element) => {
+        if (element.ImagesWithAlternativeText[0] !== undefined) {
+          console.log(element.ImagesWithAlternativeText[0].images[0].url);
+        }
+      });
+    }, 3000);
   },
 };
 </script>

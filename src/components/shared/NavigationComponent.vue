@@ -130,27 +130,102 @@
 
               <div class="space-y-6 border-t border-gray-200 px-4 py-6">
                 <div class="flow-root">
-                  <a href="#" class="-m-2 block p-2 font-medium text-gray-900">Sign in</a>
+                  <router-link
+                    v-if="!$store.state.isLoggedIn"
+                    to="/login"
+                    class="-m-2 block p-2 font-medium text-gray-900"
+                    >Sign in</router-link
+                  >
                 </div>
                 <div class="flow-root">
                   <router-link
+                    v-if="!$store.state.isLoggedIn"
                     to="/register"
                     class="-m-2 block p-2 font-medium text-gray-900"
                     >Create account</router-link
                   >
                 </div>
+
+                <div class="flow-root">
+                  <!-- <AccountDropdownComponent /> -->
+                  <!--TODO: Create a mobile version of this-->
+                </div>
               </div>
 
               <div class="border-t border-gray-200 px-4 py-6">
-                <a href="#" class="-m-2 flex items-center p-2">
-                  <img
+                <div class="lg:flex">
+                  <a href="#" class="flex items-center text-gray-700 hover:text-gray-800">
+                    <Listbox as="div" @update:model-value="setSelectedCurrency">
+                      <div class="relative mt-2">
+                        <ListboxButton
+                          class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        >
+                          <span class="block truncate"
+                            >{{ selected.symbol }} ({{ selected.name }})</span
+                          >
+                          <span
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                          >
+                            <ChevronUpDownIcon
+                              class="h-5 w-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                          </span>
+                        </ListboxButton>
+
+                        <transition
+                          leave-active-class="transition ease-in duration-100"
+                          leave-from-class="opacity-100"
+                          leave-to-class="opacity-0"
+                        >
+                          <ListboxOptions
+                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                          >
+                            <ListboxOption
+                              as="template"
+                              v-for="currency in $store.state.currencies"
+                              :key="currency.id"
+                              :value="currency"
+                              v-slot="{ active, selected }"
+                            >
+                              <li
+                                :class="[
+                                  active ? 'bg-indigo-600 text-white' : 'text-gray-900',
+                                  'relative cursor-default select-none py-2 pl-8 pr-4',
+                                ]"
+                              >
+                                <span
+                                  :class="[
+                                    selected ? 'font-semibold' : 'font-normal',
+                                    'block truncate',
+                                  ]"
+                                  >{{ currency.name }}</span
+                                >
+
+                                <span
+                                  v-if="selected"
+                                  :class="[
+                                    active ? 'text-white' : 'text-indigo-600',
+                                    'absolute inset-y-0 left-0 flex items-center pl-1.5',
+                                  ]"
+                                >
+                                  <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                </span>
+                              </li>
+                            </ListboxOption>
+                          </ListboxOptions>
+                        </transition>
+                      </div>
+                    </Listbox>
+                    <!-- <img
                     src="https://tailwindui.com/img/flags/flag-canada.svg"
                     alt=""
                     class="block h-auto w-5 flex-shrink-0"
                   />
-                  <span class="ml-3 block text-base font-medium text-gray-900">CAD</span>
-                  <span class="sr-only">, change currency</span>
-                </a>
+                  <span class="ml-3 block text-sm font-medium">CAD</span>
+                  <span class="sr-only">, change currency</span> -->
+                  </a>
+                </div>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -161,9 +236,11 @@
     <header class="relative bg-white" id="navbar">
       <!-- Top bar -->
       <p
+        v-if="freeShippingAbove"
         class="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8"
       >
-        Get free delivery on orders over {{ $store.state.currency.symbol }} 100
+        Get free delivery on orders over {{ $store.state.currency.symbol }}
+        {{ freeShippingAbove }}
       </p>
 
       <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -182,7 +259,7 @@
             <!-- Logo -->
             <div class="ml-4 flex lg:ml-0">
               <router-link to="/">
-                <span class="sr-only">Your Company</span>
+                <span class="sr-only">Tailwind Webshop</span>
                 <img
                   class="h-8 w-auto"
                   src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
@@ -324,27 +401,32 @@
                 class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
               >
                 <router-link
+                  v-if="!$store.state.isLoggedIn"
                   to="/login"
                   class="text-sm font-medium text-gray-700 hover:text-gray-800"
                   >Sign in</router-link
                 >
                 <span class="h-6 w-px bg-gray-200" aria-hidden="true" />
                 <router-link
+                  v-if="!$store.state.isLoggedIn"
                   to="/register"
                   class="text-sm font-medium text-gray-700 hover:text-gray-800"
                   >Create account</router-link
                 >
+                <AccountDropdownComponent v-if="$store.state.isLoggedIn" />
               </div>
 
               <div class="hidden lg:ml-8 lg:flex">
                 <a href="#" class="flex items-center text-gray-700 hover:text-gray-800">
                   <Listbox as="div" @update:model-value="setSelectedCurrency">
-                    <div class="relative mt-2">
+                    <div class="relative">
                       <ListboxButton
                         class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       >
                         <span class="block truncate"
-                          >{{ selected.symbol }} ({{ selected.name }})</span
+                          >{{ $store.state.currency.symbol }} ({{
+                            $store.state.currency.code
+                          }})</span
                         >
                         <span
                           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -367,7 +449,7 @@
                           <ListboxOption
                             as="template"
                             v-for="currency in $store.state.currencies"
-                            :key="currency.id"
+                            :key="currency.code"
                             :value="currency"
                             v-slot="{ active, selected }"
                           >
@@ -382,7 +464,7 @@
                                   selected ? 'font-semibold' : 'font-normal',
                                   'block truncate',
                                 ]"
-                                >{{ currency.name }}</span
+                                >{{ currency.code }}</span
                               >
 
                               <span
@@ -473,10 +555,13 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
 } from "@heroicons/vue/24/outline";
+import UserIcon from "../../assets/icons/UserIcon.vue";
+import AccountDropdownComponent from "../account/AccountDropdownComponent.vue";
 
 export default {
   name: "NavigationComponent",
   components: {
+    AccountDropdownComponent,
     Dialog,
     DialogPanel,
     Popover,
@@ -501,6 +586,7 @@ export default {
     XMarkIcon,
     CheckIcon,
     ChevronUpDownIcon,
+    UserIcon,
   },
   created() {
     this.$router.afterEach(() => {
@@ -509,9 +595,9 @@ export default {
   },
   data() {
     return {
+      freeShippingAbove: import.meta.env.VITE_SHIPPING_FREE_ABOVE,
       open: false,
       openMobile: false,
-      selected: { id: "eur", name: "EUR", description: "Euro", symbol: "€" },
       navigation: {
         categories: [
           {

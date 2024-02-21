@@ -251,7 +251,7 @@
               <div class="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
                 <RadioGroupOption
                   as="template"
-                  v-for="deliveryMethod in deliveryMethods"
+                  v-for="deliveryMethod in $store.state.deliveryMethods"
                   :key="deliveryMethod.id"
                   :value="deliveryMethod"
                   v-slot="{ checked, active }"
@@ -278,7 +278,8 @@
                         <RadioGroupDescription
                           as="span"
                           class="mt-6 text-sm font-medium text-gray-900"
-                          >{{ deliveryMethod.price }}</RadioGroupDescription
+                          >{{ $store.state.currency.symbol }}
+                          {{ deliveryMethod.price }}</RadioGroupDescription
                         >
                       </span>
                     </span>
@@ -640,22 +641,7 @@ export default {
         "Switzerland",
         "United Kingdom",
       ].sort(), // Sort the countries array alphabetically
-      deliveryMethods: [
-        {
-          id: 1,
-          title: "Standard",
-          turnaround: "4–10 business days",
-          price: "$5.00",
-          active: false,
-        },
-        {
-          id: 2,
-          title: "Express",
-          turnaround: "2–5 business days",
-          price: "$16.00",
-          active: false,
-        },
-      ],
+
       paymentMethods: [
         { id: "stripe", title: "Stripe", disabled: false },
         { id: "paypal", title: "PayPal", disabled: true },
@@ -665,7 +651,7 @@ export default {
     };
   },
   created() {
-    this.checkoutForm.deliveryMethod = this.deliveryMethods[0];
+    this.checkoutForm.deliveryMethod = this.$store.state.deliveryMethods[0];
     this.checkoutForm.paymentType = this.paymentMethods[0].id;
   },
   methods: {
@@ -741,7 +727,11 @@ export default {
     },
     shippingEstimate() {
       let cart = JSON.parse(localStorage.getItem("cart"));
-      cart.shippingEstimate = calculateShippingEstimate(this.subtotal);
+      cart.shippingEstimate = calculateShippingEstimate(
+        this.cart,
+        this.subtotal,
+        this.checkoutForm
+      );
       localStorage.setItem("cart", JSON.stringify(cart));
       return cart.shippingEstimate;
     },

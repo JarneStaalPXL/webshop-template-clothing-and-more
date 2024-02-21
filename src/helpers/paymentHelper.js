@@ -26,25 +26,26 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
             currency: currency,
             product_data: {
                 name: "Shipping",
-                images: ["https://raw.githubusercontent.com/JarneStaalPXL/webshop-template-clothing-and-more/main/src/assets/shipping.svg?token=GHSAT0AAAAAACKGJAIEPK4OTIWKIHPVQXJGZON2STQ"],
+                images: ["https://example.com/shipping.svg"],
             },
-            unit_amount: cart.shippingEstimate * 100,
+            unit_amount: Math.round(cart.shippingEstimate * 100), // Round to nearest whole number to avoid floating point precision issues
         },
         quantity: 1,
-    })
-
+    });
+    
     products.push({
         price_data: {
             currency: currency,
             product_data: {
                 name: "Taxes",
-                images: ["https://raw.githubusercontent.com/JarneStaalPXL/webshop-template-clothing-and-more/main/src/assets/taxes.svg?token=GHSAT0AAAAAACKGJAIE4V3VYZMDPERFY4NUZON2T2Q"],
+                images: ["https://example.com/taxes.svg"],
             },
-            unit_amount: cart.taxEstimate * 100,
+            unit_amount: Math.round(cart.taxEstimate * 100), // Same rounding here for taxes
         },
         quantity: 1,
         
-    })
+    });
+    
     
     const response = await fetch(`${import.meta.env.VITE_STRIPE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import store from '../store';
 
 const routes = [
     {
@@ -44,10 +45,28 @@ const routes = [
         component: () => import('../views/RegisterView.vue')
     },
     {
+        path: '/account/orders',
+        name: 'AccountView',
+        component: () => import('../views/AccountView.vue'),
+        beforeRouteEnter (to, from, next) {
+            if(store.state.isLoggedIn && store.state.user) {
+                next();
+            }
+            else {
+                next({name: 'SignInView'});
+            }
+        }
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'NotFoundView',
         component: () => import('../views/NotFoundView.vue'),
     },
+    {
+        path: '/admin',
+        name: 'AdminView',
+        component: () => import('../views/AdminView.vue'),
+    }
 ];
 
 const router = createRouter({

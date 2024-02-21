@@ -7,7 +7,7 @@
       <img
         class="mx-auto h-10 w-auto"
         src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-        alt="Your Company"
+        alt="Tailwind Webshop"
       />
       <h2
         class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
@@ -25,6 +25,8 @@
             >
             <div class="mt-2">
               <input
+                @keyup.enter="registerUserWithEmailPassword(email, password)"
+                v-model="email"
                 id="email"
                 name="email"
                 type="email"
@@ -43,6 +45,8 @@
             >
             <div class="mt-2">
               <input
+                @keyup.enter="registerUserWithEmailPassword(email, password)"
+                v-model="password"
                 id="password"
                 name="password"
                 type="password"
@@ -69,7 +73,7 @@
 
           <div>
             <button
-              type="submit"
+              @click.prevent="registerUserWithEmailPassword(email, password)"
               class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Sign up
@@ -139,7 +143,53 @@
 </template>
 
 <script>
-export default {};
+import { registerWithEmailPassword } from "../../helpers/authHelper";
+export default {
+  data() {
+    return {
+      email: "",
+      password: "",
+    };
+  },
+  methods: {
+    async registerUserWithEmailPassword(email, password) {
+      try {
+        if (!email || !password) {
+          this.$store.commit("TRIGGER_NOTIFICATION", {
+            show: true,
+            title: "Error",
+            message: "Please fill in all fields",
+            type: "error",
+            closeButton: "Close",
+            duration: 5000,
+          });
+          return;
+        }
+
+        await registerWithEmailPassword(email, password);
+
+        this.$store.commit("TRIGGER_NOTIFICATION", {
+          show: true,
+          title: "Success",
+          message: "Successfully registered",
+          type: "success",
+          closeButton: "Close",
+          duration: 5000,
+        });
+      } catch (error) {
+        console.error(error);
+        this.$store.commit("TRIGGER_NOTIFICATION", {
+          show: true,
+          title: "Error",
+          message: error.message,
+          type: "error",
+          closeButton: "Close",
+          duration: 5000,
+        });
+      }
+    },
+  },
+};
 </script>
 
 <style></style>

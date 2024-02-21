@@ -100,7 +100,7 @@
 
       <div class="border-t border-gray-100 py-10 text-center">
         <p class="text-sm text-gray-500">
-          &copy; {{ currentYear }} Your Company, Inc. All rights reserved.
+          &copy; {{ currentYear }} Tailwind Webshop, Inc. All rights reserved.
         </p>
       </div>
     </div>
