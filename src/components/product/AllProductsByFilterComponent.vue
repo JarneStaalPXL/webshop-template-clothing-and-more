@@ -53,9 +53,17 @@
                       v-for="category in $store.state.subCategories"
                       :key="category.name"
                     >
-                      <a :href="category.href" class="block px-2 py-3">{{
-                        category.name
-                      }}</a>
+                      <router-link
+                        :to="{
+                          path: 'products',
+                          query: {
+                            ...$route.query,
+                            category: category.name.toLowerCase(),
+                          },
+                        }"
+                        class="cursor-pointer"
+                        >{{ category.name }}</router-link
+                      >
                     </li>
                   </ul>
 
@@ -197,8 +205,11 @@
               >
                 <li v-for="category in $store.state.subCategories" :key="category.name">
                   <router-link
+                    :to="{
+                      path: 'products',
+                      query: { ...$route.query, category: category.name.toLowerCase() },
+                    }"
                     class="cursor-pointer"
-                    :to="'products?category=' + category.name.toLowerCase()"
                     >{{ category.name }}</router-link
                   >
                 </li>
