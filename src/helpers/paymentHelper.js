@@ -13,7 +13,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
                 currency: currency,
                 product_data: {
                     name: productName,
-                    images: [product.product.images[0].src],
+                    images: [product.product.ImagesWithAlternativeText[0].images[0].url],
                 },
                 unit_amount: product.product.price * 100,
             },
