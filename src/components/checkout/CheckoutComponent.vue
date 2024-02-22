@@ -422,8 +422,16 @@
               >
                 <div class="flex-shrink-0">
                   <img
-                    :src="product.product.images[0].src"
-                    :alt="product.product.images[0].alt"
+                    :src="
+                      product.product.ImagesWithAlternativeText[0]
+                        ? product.product.ImagesWithAlternativeText[0].images[0].url
+                        : 'https://via.placeholder.com/300'
+                    "
+                    :alt="
+                      product.product.ImagesWithAlternativeText[0]
+                        ? product.product.ImagesWithAlternativeText[0].alt
+                        : ''
+                    "
                     class="w-20 rounded-md"
                   />
                 </div>
