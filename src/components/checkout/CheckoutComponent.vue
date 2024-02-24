@@ -424,7 +424,7 @@
                   <img
                     :src="
                       product.product.ImagesWithAlternativeText[0]
-                        ? product.product.ImagesWithAlternativeText[0].images[0].url
+                        ? product.product.ImagesWithAlternativeText[0].image.url
                         : 'https://via.placeholder.com/300'
                     "
                     :alt="
@@ -661,8 +661,26 @@ export default {
   created() {
     this.checkoutForm.deliveryMethod = this.$store.state.deliveryMethods[0];
     this.checkoutForm.paymentType = this.paymentMethods[0].id;
+    this.setInitialDeliveryMethod();
   },
   methods: {
+    setInitialDeliveryMethod() {
+      // Check if the current cart qualifies for free shipping
+      const freeShippingAbove = parseFloat(import.meta.env.VITE_SHIPPING_FREE_ABOVE);
+      const currentSubtotal = calculateSubtotal(this.$store.state.cart);
+
+      if (currentSubtotal >= freeShippingAbove) {
+        // Find and set the delivery method that has a price of "0"
+        const freeShippingMethod = this.$store.state.deliveryMethods.find(
+          (method) => parseFloat(method.price) === 0
+        );
+        this.checkoutForm.deliveryMethod =
+          freeShippingMethod || this.$store.state.deliveryMethods[0];
+      } else {
+        // Set the default delivery method
+        this.checkoutForm.deliveryMethod = this.$store.state.deliveryMethods[0];
+      }
+    },
     async submitOrder() {
       this.cart.subtotal = this.subtotal;
       this.cart.shippingEstimate = this.shippingEstimate;
@@ -733,11 +751,20 @@ export default {
     },
     shippingEstimate() {
       let cart = JSON.parse(localStorage.getItem("cart"));
-      cart.shippingEstimate = calculateShippingEstimate(
-        this.cart,
-        this.subtotal,
-        this.checkoutForm
-      );
+      const freeShippingAbove = parseFloat(import.meta.env.VITE_SHIPPING_FREE_ABOVE);
+      const currentSubtotal = calculateSubtotal(this.cart);
+
+      if (currentSubtotal >= freeShippingAbove) {
+        cart.shippingEstimate = "0";
+      } else {
+        // Use the selected delivery method price if it doesn't qualify for free shipping
+        cart.shippingEstimate = calculateShippingEstimate(
+          this.cart,
+          this.subtotal,
+          this.checkoutForm
+        );
+      }
+
       localStorage.setItem("cart", JSON.stringify(cart));
       return cart.shippingEstimate;
     },

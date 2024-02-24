@@ -659,19 +659,32 @@ export default createStore({
     },
   },
   actions: {
-    async REMOVE_FROM_CART({ commit }, productId) {
-      commit("removeProductFromCart", productId);
+    async REMOVE_PRODUCT_FROM_CART({ state,commit, dispatch }, {productId, colorId}) {
+      // commit("removeProductFromCart", productId);
       // If user is logged in, remove the product from the cart in the database
       if (state.isLoggedIn && state.user) {
         // Also remove the product from the cart in the database
         const data = {
           cartId: localStorage.getItem("cartId"),
           productId: productId,
+          colorId: colorId,
         };
-        const response = await createDELETERequest(
-          "/shoppingcart/"+localStorage.getItem("cartId"),
+        const response = await createPOSTRequestAsync(
+          "/shoppingcart-detail/removeProductFromCart",
           data
         );
+        const dt = await response.json();
+        console.log("🚀 ~ REMOVE_FROM_CART ~ dt:", dt);
+
+        console.log(state.user.id);
+        await dispatch("CREATE_OR_LOAD_CART", state.user.id);
+        commit("TRIGGER_NOTIFICATION", {
+          show: true,
+          title: "Success",
+          message: "Product deleted from cart",
+          type: "success",
+          duration: 3000,
+        });
       }
     },
     async GET_PRODUCT_PRICE_BY_ID({ commit }, productId) {

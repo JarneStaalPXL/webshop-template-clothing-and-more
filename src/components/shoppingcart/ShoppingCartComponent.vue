@@ -113,12 +113,11 @@
                         </transition>
                       </div>
                     </Listbox>
-
                     <div class="absolute right-0 top-0">
                       <button
                         type="button"
                         class="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
-                        @click="removeProduct(product.product.id)"
+                        @click="removeProductFromCart(product)"
                       >
                         <span class="sr-only">Remove</span>
                         <XMarkIcon class="h-5 w-5" aria-hidden="true" />
@@ -185,11 +184,7 @@
             </div>
             <div class="flex items-center justify-between border-t border-gray-200 pt-4">
               <dt class="flex items-center text-sm text-gray-600">
-                <span>Shipping estimate</span>
-                <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                  <span class="sr-only">Learn more about how shipping is calculated</span>
-                  <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
-                </a>
+                <span>Shipping</span>
               </dt>
               <dd class="text-sm font-medium text-gray-900">
                 {{ $store.state.currency.symbol }} {{ shippingEstimate }}
@@ -197,11 +192,11 @@
             </div>
             <div class="flex items-center justify-between border-t border-gray-200 pt-4">
               <dt class="flex text-sm text-gray-600">
-                <span>Tax estimate</span>
-                <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
+                <span>Tax ({{ taxPercentage * 100 }}%)</span>
+                <!-- <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
                   <span class="sr-only">Learn more about how tax is calculated</span>
                   <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
-                </a>
+                </a> -->
               </dt>
               <dd class="text-sm font-medium text-gray-900">
                 {{ $store.state.currency.symbol }} {{ taxEstimate }}
@@ -272,6 +267,7 @@ export default {
       shippingEstimate: 0,
       taxEstimate: 0,
       orderTotal: 0,
+      taxPercentage: Number.parseFloat(import.meta.env.VITE_TAX_RATE_PERCENTAGE),
     };
   },
   // computed: {
@@ -337,8 +333,11 @@ export default {
       });
       this.calculateAllTotals();
     },
-    removeProduct(productId) {
-      this.$store.commit("removeProductFromCart", productId);
+    async removeProductFromCart(product) {
+      console.log(product);
+      let productId = product.product.id;
+      let colorId = product.product_color.id;
+      await this.$store.dispatch("REMOVE_PRODUCT_FROM_CART", { productId, colorId });
     },
   },
 };
