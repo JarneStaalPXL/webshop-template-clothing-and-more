@@ -22,12 +22,12 @@
               >
                 <img
                   :src="
-                    product.ImagesWithAlternativeText[0]
-                      ? product.ImagesWithAlternativeText[0].images[0].url
+                    product.ImagesWithAlternativeText
+                      ? product.ImagesWithAlternativeText[0].image.url
                       : 'https://via.placeholder.com/300'
                   "
                   :alt="
-                    product.ImagesWithAlternativeText[0]
+                    product.ImagesWithAlternativeText
                       ? product.ImagesWithAlternativeText[0].alt
                       : ''
                   "

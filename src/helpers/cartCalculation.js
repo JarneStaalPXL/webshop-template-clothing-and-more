@@ -6,9 +6,10 @@ function calculateSubtotal(cartItems) {
     // Handle the case where cartItems is not an array or is empty
     return '0.00';
   }
+  console.log(cartItems);
 
   const total = cartItems.reduce((acc, product) => {
-    return acc + product.product.price * product.product.quantity;
+    return acc + product.product.price * product.quantity;
   }, 0);
 
   return total.toFixed(2);

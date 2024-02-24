@@ -29,7 +29,7 @@ export default {
     SearchComponent,
   },
   beforeMount() {
-    this.$store.dispatch("LOAD_PRODUCTS_FROM_STRAPI");
+    // this.$store.dispatch("LOAD_PRODUCTS_FROM_STRAPI");
   },
 };
 </script>

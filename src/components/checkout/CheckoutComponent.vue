@@ -695,7 +695,6 @@ export default {
       // Ensure card number is clean (without spaces) before passing to getCardType
       // The .replace(/\s/g, '') removes any spaces before passing it to getCardType
       this.cardTypeUsed = this.getCardType(cardNumber.replace(/\s/g, ""));
-      console.log(this.cardTypeUsed);
     },
 
     getCardType(cardNumber) {
@@ -712,7 +711,6 @@ export default {
 
       // Check each card type to see if the first 4 digits match
       if (cardTypes.visa.test(first4Digits)) {
-        console.log("visa");
         return "visa";
       } else if (cardTypes.mastercard.test(first4Digits)) {
         return "mastercard";

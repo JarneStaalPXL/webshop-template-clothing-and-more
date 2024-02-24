@@ -22,7 +22,7 @@
                 <img
                   :src="
                     product.product.ImagesWithAlternativeText[0]
-                      ? product.product.ImagesWithAlternativeText[0].images[0].url
+                      ? product.product.ImagesWithAlternativeText[0].image.url
                       : 'https://via.placeholder.com/300'
                   "
                   :alt="
@@ -57,7 +57,7 @@
                     <label class="sr-only">Quantity, {{ product.product.name }}</label>
                     <Listbox
                       as="div"
-                      v-model="product.product.quantity"
+                      v-model="product.quantity"
                       @update:model-value="onQuantityChange(product, $event)"
                     >
                       <ListboxLabel
@@ -68,9 +68,7 @@
                         <ListboxButton
                           class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         >
-                          <span class="block truncate">{{
-                            product.product.quantity
-                          }}</span>
+                          <span class="block truncate">{{ product.quantity }}</span>
                           <span
                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                           >
@@ -91,7 +89,7 @@
                           >
                             <ListboxOption
                               as="template"
-                              v-for="(i, index) in 10"
+                              v-for="(i, index) in maxQuantity"
                               :key="index"
                               :value="i"
                               v-slot="{ active, selected }"
@@ -130,16 +128,16 @@
                 </div>
 
                 <div class="flex justify-between mt-10">
-                  <div class="flex" v-if="product.color">
+                  <div class="flex" v-if="product.product_color">
                     <div
                       :class="`rounded-full border border-transparent ring-2 ring-black ring-offset-2 ring-offset-white`"
                       :style="{
-                        background: product.color.color,
+                        background: product.product_color.color,
                         width: '25px',
                         height: '25px',
                       }"
                     ></div>
-                    <div class="ml-3">{{ product.color.name }}</div>
+                    <div class="ml-3">{{ product.product_color.name }}</div>
                   </div>
 
                   <!-- Ensure this is always on the right by placing it outside and after the conditionally rendered color div -->
@@ -269,59 +267,75 @@ export default {
   },
   data() {
     return {
-      // Assuming cart is initially empty or fetched from somewhere
-      cart: this.$store.state.cart,
+      maxQuantity: Number.parseInt(import.meta.env.VITE_MAX_PRODUCT_QUANTITY),
+      subtotal: 0,
+      shippingEstimate: 0,
+      taxEstimate: 0,
+      orderTotal: 0,
     };
   },
-  computed: {
-    subtotal() {
-      let cart = JSON.parse(localStorage.getItem("cart")) || { subtotal: 0 };
-      cart.subtotal = calculateSubtotal(this.cart);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      return cart.subtotal;
-    },
-    shippingEstimate() {
-      let cart = JSON.parse(localStorage.getItem("cart")) || { shippingEstimate: 0 };
-      cart.shippingEstimate = calculateShippingEstimate(
-        this.cart,
+  // computed: {
+  //   cart() {
+  //     return this.$store.state.cart;
+  //   },
+  //   subtotal() {
+  //     return calculateSubtotal(this.cart);
+  //   },
+  //   shippingEstimate() {
+  //     return calculateShippingEstimate(this.cart, this.subtotal, null, this.taxEstimate);
+  //   },
+  //   taxEstimate() {
+  //     return calculateTaxEstimate(this.subtotal, this.$store.state.taxRate);
+  //   },
+  //   orderTotal() {
+  //     return calculateOrderTotal(this.subtotal, this.shippingEstimate, this.taxEstimate);
+  //   },
+  // },
+  async beforeMount() {
+    if (this.$store.state.isLoggedIn) {
+      await this.$store.dispatch("CREATE_OR_LOAD_CART", this.$store.state.user.id);
+    }
+
+    this.calculateAllTotals();
+
+    // Update the cart with the latest prices from the server
+    // await this.updatePrices();
+  },
+  methods: {
+    // async updatePrices() {
+    //   const priceUpdates = this.cart.map(async (product) => {
+    //     const price = await this.$store.dispatch(
+    //       "GET_PRODUCT_PRICE_BY_ID",
+    //       product.product.id
+    //     );
+    //   });
+
+    //   await Promise.all(priceUpdates);
+    // },
+    calculateAllTotals() {
+      this.subtotal = calculateSubtotal(this.$store.state.cart);
+      this.shippingEstimate = calculateShippingEstimate(
+        this.$store.state.cart,
         this.subtotal,
         null,
         this.taxEstimate
       );
-      localStorage.setItem("cart", JSON.stringify(cart));
-      return cart.shippingEstimate;
-    },
-    taxEstimate() {
-      let cart = JSON.parse(localStorage.getItem("cart"));
-      cart.taxEstimate = calculateTaxEstimate(this.subtotal, this.$store.state.taxRate);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      return cart.taxEstimate;
-    },
-    orderTotal() {
-      let cart = JSON.parse(localStorage.getItem("cart"));
-      cart.orderTotal = calculateOrderTotal(
+      this.taxEstimate = calculateTaxEstimate(this.subtotal, this.$store.state.taxRate);
+      this.orderTotal = calculateOrderTotal(
         this.subtotal,
         this.shippingEstimate,
         this.taxEstimate
       );
-      localStorage.setItem("cart", JSON.stringify(cart));
-      return cart.orderTotal;
     },
-  },
-  mounted() {
-    console.log(this.$store.state.cart);
-  },
-  methods: {
     checkout() {
-      // Redirect to checkout page
       this.$router.push("/checkout");
     },
     onQuantityChange(product, newQuantity) {
-      product.product.quantity = newQuantity;
-      this.$store.commit("updateProductQuantity", {
-        productId: product.id,
+      this.$store.dispatch("UPDATE_PRODUCT_QUANTITY_IN_CART", {
+        productId: product.product.id,
         quantity: newQuantity,
       });
+      this.calculateAllTotals();
     },
     removeProduct(productId) {
       this.$store.commit("removeProductFromCart", productId);

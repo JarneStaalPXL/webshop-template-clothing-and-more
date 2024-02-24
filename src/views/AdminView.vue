@@ -11,7 +11,6 @@ export default {
     };
   },
   beforeMount() {
-    console.log(this.strapiProdUrl);
     window.location.href = this.strapiProdUrl + "/admin";
   },
 };

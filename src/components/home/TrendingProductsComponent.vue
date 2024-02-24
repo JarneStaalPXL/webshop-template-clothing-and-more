@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:pt-32">
       <div
         class="md:flex md:items-center md:justify-between"
-        v-if="$store.state.products && $store.state.products.length > 0"
+        v-if="trendingProducts && trendingProducts.length > 0"
       >
         <h2
           id="favorites-heading"
@@ -25,7 +25,7 @@
       >
         <router-link
           :to="'/product/' + product.id"
-          v-for="product in $store.state.products.slice(4, 8)"
+          v-for="product in trendingProducts"
           :key="product.id"
         >
           <div class="group relative">
@@ -34,12 +34,12 @@
             >
               <img
                 :src="
-                  product.ImagesWithAlternativeText[0]
-                    ? product.ImagesWithAlternativeText[0].images[0].url
+                  product.ImagesWithAlternativeText
+                    ? product.ImagesWithAlternativeText[0].image.url
                     : 'https://via.placeholder.com/300'
                 "
                 :alt="
-                  product.ImagesWithAlternativeText[0]
+                  product.ImagesWithAlternativeText
                     ? product.ImagesWithAlternativeText[0].alt
                     : ''
                 "
@@ -73,7 +73,12 @@
 export default {
   name: "TrendingProductsComponent",
   data() {
-    return {};
+    return {
+      trendingProducts: [],
+    };
+  },
+  async beforeMount() {
+    this.trendingProducts = await this.$store.dispatch("GET_TRENDING_PRODUCTS");
   },
 };
 </script>

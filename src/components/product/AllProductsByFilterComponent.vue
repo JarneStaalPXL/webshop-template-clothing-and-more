@@ -405,8 +405,6 @@ export default {
         }
       );
 
-      console.log(paginatedProducts, totalProductsCount);
-
       // Update filteredProducts with paginated products
       this.filteredProducts = paginatedProducts;
 

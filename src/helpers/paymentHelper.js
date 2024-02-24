@@ -57,7 +57,6 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
             currency: currency,
         }),
     });
-    console.log(response);
 
     const session = await response.json();
     const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);

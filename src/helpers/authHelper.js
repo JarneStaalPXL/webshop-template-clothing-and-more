@@ -55,8 +55,8 @@ const loginWithEmailPassword = async (email, password) => {
 
     // Change login status
     store.commit("SET_ISLOGGEDIN", true);
-     console.log(store.state.isLoggedIn);
     await store.dispatch("CREATE_USER_ON_STRAPI", user);
+    await store.dispatch("CREATE_OR_LOAD_CART", user.uid);
     router.push('/');
     
     return userCredential.user;
@@ -84,7 +84,8 @@ const loginWithGoogle = async () => {
 
     // Change login status
     store.commit("SET_ISLOGGEDIN", true);
-    store.dispatch("CREATE_USER_ON_STRAPI", user);
+    await store.dispatch("CREATE_USER_ON_STRAPI", user);
+    await store.dispatch("CREATE_OR_LOAD_CART", user.uid);
     router.push('/');
     return user;
   } catch (error) {
@@ -142,7 +143,6 @@ const registerWithEmailPassword = async (email, password) => {
 const handleFirebaseError = (error) => {
   let errorMessage = 'An error occurred. Please try again.';
 
-  console.log(error.code)
   // Customize error handling and user feedback based on the error code
   switch (error.code) {
     case 'auth/user-not-found':

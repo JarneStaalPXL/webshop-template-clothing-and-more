@@ -6,9 +6,12 @@
         <TabGroup as="div" class="flex flex-col-reverse">
           <!-- Image selector -->
           <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
-            <TabList class="grid grid-cols-4 gap-6">
+            <TabList
+              class="grid grid-cols-4 gap-6"
+              v-if="product.ImagesWithAlternativeText"
+            >
               <Tab
-                v-for="image in product.ImagesWithAlternativeText[0].images"
+                v-for="image in product.ImagesWithAlternativeText"
                 :key="image.id"
                 class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                 v-slot="{ selected }"
@@ -16,9 +19,8 @@
                 <span class="sr-only">{{ image.name }}</span>
                 <span class="absolute inset-0 overflow-hidden rounded-md">
                   <img
-                    :src="image.url"
-                    :alt="product.ImagesWithAlternativeText[0].alt"
-                    alt=""
+                    :src="image.image.url"
+                    :alt="image.alt"
                     class="h-full w-full object-cover object-center"
                   />
                 </span>
@@ -33,14 +35,14 @@
             </TabList>
           </div>
 
-          <TabPanels class="aspect-h-1 aspect-w-1 w-full">
-            <TabPanel
-              v-for="image in product.ImagesWithAlternativeText[0].images"
-              :key="image.id"
-            >
+          <TabPanels
+            class="aspect-h-1 aspect-w-1 w-full"
+            v-if="product.ImagesWithAlternativeText"
+          >
+            <TabPanel v-for="image in product.ImagesWithAlternativeText" :key="image.id">
               <img
-                :src="image.url"
-                :alt="product.ImagesWithAlternativeText[0].alt"
+                :src="image.image.url"
+                :alt="image.alt"
                 class="h-full w-full object-cover object-center sm:rounded-lg"
               />
             </TabPanel>
@@ -274,9 +276,10 @@ export default {
       );
     },
     addToCart({ product, selectedColor }) {
-      this.$store.commit("addToCart", {
+      this.$store.dispatch("addToCart", {
         product: product,
         color: selectedColor,
+        cartId: localStorage.getItem("cartId"),
       });
     },
   },
