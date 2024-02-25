@@ -124,7 +124,7 @@
               </div>
 
               <div>
-                <div class="mt-1">
+                <div class="mt-1" v-if="checkoutForm.country">
                   <Listbox as="div" v-model="checkoutForm.country">
                     <ListboxLabel
                       class="block text-sm font-medium leading-6 text-gray-900"
@@ -134,7 +134,9 @@
                       <ListboxButton
                         class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       >
-                        <span class="block truncate">{{ checkoutForm.country }}</span>
+                        <span class="block truncate">{{
+                          checkoutForm.country.name
+                        }}</span>
                         <span
                           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                         >
@@ -155,7 +157,7 @@
                         >
                           <ListboxOption
                             as="template"
-                            v-for="country in countries"
+                            v-for="country in $store.state.countries"
                             :key="country.id"
                             :value="country"
                             v-slot="{ active, selected }"
@@ -171,7 +173,7 @@
                                   selected ? 'font-semibold' : 'font-normal',
                                   'block truncate',
                                 ]"
-                                >{{ country }}</span
+                                >{{ country.name }}</span
                               >
 
                               <span
@@ -470,11 +472,7 @@
 
                     <div class="flex flex-col w-full">
                       <label for="quantity" class="sr-only">Quantity</label>
-                      <Listbox
-                        as="div"
-                        v-model="product.product.quantity"
-                        :disabled="true"
-                      >
+                      <Listbox as="div" v-model="product.quantity" :disabled="true">
                         <ListboxLabel
                           class="block text-sm font-medium leading-6 text-gray-900"
                           >Quantity</ListboxLabel
@@ -483,9 +481,7 @@
                           <div
                             class="relative w-full py-1.5 pr-10 text-left text-gray-900 sm:text-sm sm:leading-6"
                           >
-                            <span class="block truncate"
-                              >{{ product.product.quantity }} pcs</span
-                            >
+                            <span class="block truncate">{{ product.quantity }} pcs</span>
                           </div>
 
                           <transition
@@ -522,6 +518,13 @@
                           </transition>
                         </div>
                       </Listbox>
+                      <span class="block text-sm font-medium leading-6 text-gray-900"
+                        >Price per piece</span
+                      >
+                      <span
+                        >{{ $store.state.currency.symbol }}
+                        {{ product.product.price }}</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -541,7 +544,7 @@
                 </dd>
               </div>
               <div class="flex items-center justify-between">
-                <dt class="text-sm">Taxes</dt>
+                <dt class="text-sm">VAT ({{ taxPercentage * 100 }}%)</dt>
                 <dd class="text-sm font-medium text-gray-900">
                   {{ $store.state.currency.symbol }} {{ taxEstimate }}
                 </dd>
@@ -616,6 +619,7 @@ export default {
   },
   data() {
     return {
+      taxPercentage: Number.parseFloat(import.meta.env.VITE_TAX_RATE_PERCENTAGE),
       cardTypeUsed: "",
       checkoutForm: {
         email: "",
@@ -625,7 +629,7 @@ export default {
         address: "",
         apartment: "",
         city: "",
-        country: "Belgium",
+        country: "",
         province: "",
         postalCode: "",
         phone: "",
@@ -636,33 +640,22 @@ export default {
         expirationDate: "",
         cvc: "",
       },
-      selectedCountry: "Belgium",
-      countries: [
-        "United States",
-        "Canada",
-        "Mexico",
-        "Belgium",
-        "France",
-        "Germany",
-        "Netherlands",
-        "Spain",
-        "Switzerland",
-        "United Kingdom",
-      ].sort(), // Sort the countries array alphabetically
-
       paymentMethods: [
-        { id: "stripe", title: "Stripe", disabled: false },
+        { id: "stripe", title: "Card", disabled: false },
         { id: "paypal", title: "PayPal", disabled: true },
       ],
       selectedDeliveryMethod: null,
       cart: this.$store.state.cart,
     };
   },
-  created() {
+  async beforeMount() {
+    await this.$store.dispatch("FETCH_COUNTRIES");
     this.checkoutForm.deliveryMethod = this.$store.state.deliveryMethods[0];
     this.checkoutForm.paymentType = this.paymentMethods[0].id;
     this.setInitialDeliveryMethod();
+    this.checkoutForm.country = this.$store.state.countries[0];
   },
+  created() {},
   methods: {
     setInitialDeliveryMethod() {
       // Check if the current cart qualifies for free shipping
@@ -714,7 +707,6 @@ export default {
       // The .replace(/\s/g, '') removes any spaces before passing it to getCardType
       this.cardTypeUsed = this.getCardType(cardNumber.replace(/\s/g, ""));
     },
-
     getCardType(cardNumber) {
       // Define regular expressions for each card type based on the first 4 digits
       const cardTypes = {

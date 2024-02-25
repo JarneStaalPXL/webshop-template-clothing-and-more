@@ -478,6 +478,7 @@ export default createStore({
         symbol: "£",
       },
     ],
+    countries: [], 
 
     cart: JSON.parse(localStorage.getItem("cart")) || [],
     notification: {
@@ -657,8 +658,19 @@ export default createStore({
     closeNotification(state) {
       state.notification.show = false;
     },
+    SET_COUNTRIES(state, countries) {
+      state.countries = countries;
+    },
   },
   actions: {
+    async FETCH_COUNTRIES({ state, commit }) {
+      const response = await createGETRequestAsync("/checkout-setting?populate=countries&_sort=countries.name:ASC'");
+      const dt = await response.json();
+      console.log(dt.data.attributes.countries);
+      const sortedCountries = dt.data.attributes.countries.sort((a, b) => a.name.localeCompare(b.name));
+
+      commit("SET_COUNTRIES", sortedCountries);
+    },
     async REMOVE_PRODUCT_FROM_CART({ state,commit, dispatch }, {productId, colorId}) {
       // commit("removeProductFromCart", productId);
       // If user is logged in, remove the product from the cart in the database

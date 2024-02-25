@@ -192,7 +192,7 @@
             </div>
             <div class="flex items-center justify-between border-t border-gray-200 pt-4">
               <dt class="flex text-sm text-gray-600">
-                <span>Tax ({{ taxPercentage * 100 }}%)</span>
+                <span>VAT ({{ taxPercentage * 100 }}%)</span>
                 <!-- <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
                   <span class="sr-only">Learn more about how tax is calculated</span>
                   <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
@@ -338,6 +338,7 @@ export default {
       let productId = product.product.id;
       let colorId = product.product_color.id;
       await this.$store.dispatch("REMOVE_PRODUCT_FROM_CART", { productId, colorId });
+      this.calculateAllTotals();
     },
   },
 };
