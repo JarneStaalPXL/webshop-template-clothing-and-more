@@ -9,12 +9,17 @@ function calculateSubtotal(cartItems) {
   console.log(cartItems);
 
   const total = cartItems.reduce((acc, product) => {
-    return acc + product.product.price * product.quantity;
+    console.log("🚀 ~ total ~ product:", product)
+    // Using product.product.price as a fallback when product.price is NaN
+    const price = product.product.price;
+    console.log("QUANTITY",product.product.quantity);
+    console.log("ACC",acc);
+    return (acc + price) * product.product.quantity;
   }, 0);
+  console.log("🚀 ~ total ~ total:", total)
 
   return total.toFixed(2);
 }
-
 
 function calculateShippingEstimate(cartItems, subtotal, checkoutForm, taxEstimate) {
   const shippingRatePercentageOfSubtotal = import.meta.env
@@ -53,10 +58,12 @@ function calculateShippingEstimate(cartItems, subtotal, checkoutForm, taxEstimat
 
   if (shippingRatePercentagePerProduct) {
     const estimate = cartItems.reduce((acc, product) => {
+      // Using product.product.price as a fallback when product.price is NaN
+      const price = isNaN(product.price) ? product.product.price : product.price;
       return (
         acc +
-        product.product.price *
-          product.product.quantity *
+        price *
+          product.quantity *
           parseFloat(shippingRatePercentagePerProduct)
       );
     }, 0);
@@ -67,7 +74,6 @@ function calculateShippingEstimate(cartItems, subtotal, checkoutForm, taxEstimat
     return shippingRateFixedPrice;
   }
 }
-
 
 function calculateTaxEstimate(subtotal, taxRate) {
   const tax = parseFloat(subtotal) * taxRate;

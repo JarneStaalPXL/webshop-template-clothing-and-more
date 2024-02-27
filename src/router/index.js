@@ -35,6 +35,11 @@ const routes = [
         component: () => import('../views/CheckoutView.vue'),
     },
     {
+        path: '/checkout/success/:checkoutSessionId/:orderNumberId',
+        name: 'CheckoutSuccessView',
+        component: () => import('../views/CheckoutSuccessView.vue'),
+    },
+    {
         path: '/login',
         name: 'SignInView',
         component: () => import('../views/SignInView.vue')

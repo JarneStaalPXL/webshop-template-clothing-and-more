@@ -518,13 +518,23 @@
                           </transition>
                         </div>
                       </Listbox>
-                      <span class="block text-sm font-medium leading-6 text-gray-900"
-                        >Price per piece</span
-                      >
-                      <span
-                        >{{ $store.state.currency.symbol }}
-                        {{ product.product.price }}</span
-                      >
+                      <label for="quantity" class="sr-only">Quantity</label>
+                      <Listbox as="div" v-model="product.quantity" :disabled="true">
+                        <ListboxLabel
+                          class="block text-sm font-medium leading-6 text-gray-900"
+                          >Price</ListboxLabel
+                        >
+                        <div class="relative">
+                          <div
+                            class="relative w-full py-1.5 pr-10 text-left text-gray-900 sm:text-sm sm:leading-6"
+                          >
+                            <span class="block truncate"
+                              >{{ $store.state.currency.symbol }}
+                              {{ product.product.price }}</span
+                            >
+                          </div>
+                        </div>
+                      </Listbox>
                     </div>
                   </div>
                 </div>

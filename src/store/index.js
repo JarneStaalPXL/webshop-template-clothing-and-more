@@ -468,7 +468,6 @@ export default createStore({
       {
         code: "AUD",
         name: "Australian Dollar",
-        fullDescription: "Australian Dollar",
         symbol: "$",
       },
       { code: "EUR", name: "Euro", symbol: "€" },
@@ -478,7 +477,7 @@ export default createStore({
         symbol: "£",
       },
     ],
-    countries: [], 
+    countries: [],
 
     cart: JSON.parse(localStorage.getItem("cart")) || [],
     notification: {
@@ -562,37 +561,39 @@ export default createStore({
         state.cart[productIndex].product.price = price;
       }
     },
-    
+
     SET_CART(state, cart) {
       state.cart = cart;
     },
     ADD_TO_CART(state, { product, color }) {
       // Ensure that product and color are defined before proceeding
       if (!product || !color) {
-        console.error('Product or color is undefined', product, color);
+        console.error("Product or color is undefined", product, color);
         return; // Exit the mutation if the check fails
       }
-  
+
       // Use optional chaining to safely access nested properties
-      const index = state.cart.findIndex((item) =>
-        item.product?.id === product.id && item.color?.id === color.id
+      const index = state.cart.findIndex(
+        (item) => item.product?.id === product.id && item.color?.id === color.id
       );
-  
+
       if (index !== -1) {
         // Increase the quantity of the existing cart item
         state.cart[index].quantity += 1;
+        state.cart[index].product.quantity += 1;
       } else {
         // Create a new cart item with the product and color
+        product.quantity = 1; // Start with a quantity of 1
         const newCartItem = {
           product: {
             ...product,
-            quantity: 1 // Start with a quantity of 1
+            quantity: 1, // Start with a quantity of 1
           },
           color, // Use the color object directly
         };
         state.cart.push(newCartItem);
       }
-      localStorage.setItem('cart', JSON.stringify(state.cart));
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
     SET_PRODUCTS(state, products) {
       state.products = products;
@@ -648,7 +649,8 @@ export default createStore({
     removeProductFromCart(state, productId) {
       const index = state.cart.findIndex(
         (item) => item.product.id === productId
-      );
+      );  
+      console.log("🚀 ~ removeProductFromCart ~ index:", index)
       if (index !== -1) {
         state.cart.splice(index, 1);
         // Persist the updated cart to localStorage
@@ -664,15 +666,23 @@ export default createStore({
   },
   actions: {
     async FETCH_COUNTRIES({ state, commit }) {
-      const response = await createGETRequestAsync("/checkout-setting?populate=countries&_sort=countries.name:ASC'");
+      const response = await createGETRequestAsync(
+        "/checkout-setting?populate=countries&_sort=countries.name:ASC'"
+      );
       const dt = await response.json();
-      console.log(dt.data.attributes.countries);
-      const sortedCountries = dt.data.attributes.countries.sort((a, b) => a.name.localeCompare(b.name));
+      if(dt.data.attributes.countries.length === 0) return;
+
+      const sortedCountries = dt.data.attributes.countries.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
 
       commit("SET_COUNTRIES", sortedCountries);
     },
-    async REMOVE_PRODUCT_FROM_CART({ state,commit, dispatch }, {productId, colorId}) {
-      // commit("removeProductFromCart", productId);
+    async REMOVE_PRODUCT_FROM_CART(
+      { state, commit, dispatch },
+      { productId, colorId }
+    ) {
+
       // If user is logged in, remove the product from the cart in the database
       if (state.isLoggedIn && state.user) {
         // Also remove the product from the cart in the database
@@ -698,19 +708,22 @@ export default createStore({
           duration: 3000,
         });
       }
+      else {
+        commit("removeProductFromCart", productId);
+      }
     },
     async GET_PRODUCT_PRICE_BY_ID({ commit }, productId) {
       const response = await createGETRequestAsync(
         `/product-detail/getProductPriceById/${productId}`
       );
       const product = await response.json();
-      commit('UPDATE_PRODUCT_PRICE', { productId, price: product });
+      commit("UPDATE_PRODUCT_PRICE", { productId, price: product });
     },
     async CREATE_OR_LOAD_CART({ state, commit }, uid) {
       // If user is logged in, create or load the cart from the database
       if (state.isLoggedIn) {
         // if user already added things to cart and cartId is not present in localStorage
-        if (!localStorage.getItem("cartId" )) {
+        if (!localStorage.getItem("cartId")) {
           // Upload the cart to the database
           const data = {
             uid: uid,
@@ -723,13 +736,14 @@ export default createStore({
           );
           const dt = await response.json();
           localStorage.setItem("cartId", dt.id);
-        }
-        else {
+        } else {
           // Load the cart from the database
           const response = await createGETRequestAsync(
             `/shoppingcart-detail/getCartById/${localStorage.getItem("cartId")}`
           );
+          console.log("🚀 ~ CREATE_OR_LOAD_CART ~ response:", response);
           const cart = await response.json();
+          console.log("🚀 ~ CREATE_OR_LOAD_CART ~ cart:", cart);
           commit("SET_CART", cart.Products);
         }
       }
@@ -775,36 +789,33 @@ export default createStore({
       );
     },
     async addToCart({ commit }, { product, color, cartId }) {
+      product.quantity = 1;
       // Commit the ADD_TO_CART mutation with the product and color
       commit("ADD_TO_CART", { product, color });
-    
-      // Prepare the data to be sent to the server, including the product_color
-      const data = {
-        cartId: cartId,
-        uid: JSON.parse(localStorage.getItem("user")).id,
-        productToAdd: {
-          ...product,
-          product_color: color.name, // Ensure the product_color is included
-        },
-      };
 
-    
       if (localStorage.getItem("user")) {
+        // Prepare the data to be sent to the server, including the product_color
+        const data = {
+          cartId: cartId,
+          uid: JSON.parse(localStorage.getItem("user")).id,
+          productToAdd: {
+            ...product,
+            product_color: color.name, // Ensure the product_color is included
+          },
+        };
+
         // Make the API call to update or create the cart with the product_color
         const response = await createPUTRequestAsync(
           "/shoppingcart-detail/updateOrCreateCart",
           data
         );
 
-    
         try {
           const dt = await response.json();
           localStorage.setItem("cartId", dt.id);
-        } catch (err) {
-
-        }
+        } catch (err) {}
       }
-    
+
       // Update notification state
       commit("TRIGGER_NOTIFICATION", {
         show: true,
@@ -814,7 +825,7 @@ export default createStore({
         duration: 3000,
       });
     },
-    
+
     async LOAD_PRODUCTS_FROM_STRAPI({ state, commit }) {
       // Fetch all products from your API here
 
@@ -837,7 +848,6 @@ export default createStore({
       );
 
       const data = await response.json();
-
     },
     SIGN_OUT({ state, commit }) {
       commit("SET_USER", null);
@@ -846,7 +856,6 @@ export default createStore({
     },
     SUBMIT_NEWSLETTER({ state, commit }, email) {
       // Submit the email to your API here
-
     },
     async FIND_PRODUCT_FROM_ALL_LISTS({ state, commit }, productId) {
       const response = await createGETRequestAsync(
@@ -899,7 +908,7 @@ export default createStore({
 
       return products;
     },
-    SUBMIT_ORDER({ state, commit }, { checkoutForm, cart }) {
+    async SUBMIT_ORDER({ state, commit }, { checkoutForm, cart }) {
       // First grab the payment method from the checkoutForm
       const paymentMethod = checkoutForm.paymentType;
 
@@ -908,7 +917,16 @@ export default createStore({
       if (paymentMethod === "stripe") {
         // Initiatate the payment process with Stripe
         console.log("Payment initiated with Stripe");
-        redirectToStripeCheckoutWithProducts(cart, state.currency.code);
+        let sessionObject = redirectToStripeCheckoutWithProducts(cart, state.currency.code);
+        
+        // // Grab the id from the sessionObject and add it to the order (field: paymentSessionId)
+        // let orderResponse =  await createPOSTRequestAsync("/order-detail/create-order", {
+        //   checkoutForm: checkoutForm,
+        //   paymentSessionId: sessionObject.id,
+        //   cart: cart,
+        // });
+        // let order = await orderResponse.json();
+        // console.log("🚀 ~ SUBMIT_ORDER ~ order:", order);
       }
     },
   },
