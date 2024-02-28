@@ -11,8 +11,6 @@
 </template>
 
 <script>
-import { createGETRequestAsync } from "../helpers/requestHelper";
-
 export default {
   name: "CheckoutSuccessView",
   data() {
@@ -22,47 +20,13 @@ export default {
       paymentStatus: null,
     };
   },
-  async beforeMount() {
-    const queryParams = new URLSearchParams(window.location.search);
-    this.checkoutSessionId = queryParams.get("session_id");
-
-    if (this.checkoutSessionId) {
-      await this.confirmPayment();
-    }
+  beforeMount() {
+    // Assign the query parameters to component data properties
+    this.checkoutSessionId = this.$route.query.sessionId;
+    this.orderNumberId = this.$route.query.orderNumberId;
   },
   methods: {
-    async confirmPayment() {
-      try {
-        const response = await createGETRequestAsync(
-          `/retrieve-checkout-session/${this.checkoutSessionId}`
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          this.paymentStatus = data.paymentIntent.status;
-
-          if (this.paymentStatus === "succeeded") {
-            // You can now create an order number using a method that you define.
-            this.orderNumberId = this.createOrderNumber();
-            // You may also want to dispatch an action to store the order details in your database
-          } else {
-            // Handle payment failure
-            console.error("Payment did not succeed");
-          }
-        } else {
-          // Handle error response
-          console.error("Failed to confirm payment", response.status);
-        }
-      } catch (error) {
-        console.error("Error confirming payment", error);
-      }
-    },
-    createOrderNumber() {
-      // Implement your logic to create an order number
-      // This could be generating a unique ID, fetching it from the backend, etc.
-      // For this example, let's just simulate it with a random number:
-      return Math.floor(Math.random() * 1000000).toString();
-    },
+    // Your methods go here
   },
 };
 </script>

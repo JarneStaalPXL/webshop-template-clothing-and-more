@@ -66,7 +66,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
   const session = await response.json();
   console.log("🚀 ~ redirectToStripeCheckoutWithProducts ~ session:", session)
   const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-  stripe.redirectToCheckout({ sessionId: session.id });
+  stripe.redirectToCheckout({ sessionId: session.sessionId });
 
   
   return { sessionId: session.id};

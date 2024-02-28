@@ -35,7 +35,8 @@ const routes = [
         component: () => import('../views/CheckoutView.vue'),
     },
     {
-        path: '/checkout/success/:checkoutSessionId/:orderNumberId',
+        path: '/checkout/success/',
+        query: { sessionId: 'session_id', orderNumberId: 'order_id'},
         name: 'CheckoutSuccessView',
         component: () => import('../views/CheckoutSuccessView.vue'),
     },
