@@ -6,17 +6,12 @@ function calculateSubtotal(cartItems) {
     // Handle the case where cartItems is not an array or is empty
     return '0.00';
   }
-  console.log(cartItems);
 
   const total = cartItems.reduce((acc, product) => {
-    console.log("🚀 ~ total ~ product:", product)
     // Using product.product.price as a fallback when product.price is NaN
     const price = product.product.price;
-    console.log("QUANTITY",product.product.quantity);
-    console.log("ACC",acc);
     return (acc + price) * product.product.quantity;
   }, 0);
-  console.log("🚀 ~ total ~ total:", total)
 
   return total.toFixed(2);
 }

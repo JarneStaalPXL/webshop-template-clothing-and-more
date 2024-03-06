@@ -13,6 +13,16 @@
 <script>
 export default {
   name: "CheckoutSuccessView",
+  query: {
+    sessionId: {
+      type: String,
+      required: true,
+    },
+    orderNumberId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       checkoutSessionId: null,
@@ -21,9 +31,10 @@ export default {
     };
   },
   beforeMount() {
+    console.log(this.$route.query);
     // Assign the query parameters to component data properties
-    this.checkoutSessionId = this.$route.query.sessionId;
-    this.orderNumberId = this.$route.query.orderNumberId;
+    this.checkoutSessionId = this.$route.query.session_id;
+    this.orderNumberId = this.$route.query.order_id;
   },
   methods: {
     // Your methods go here

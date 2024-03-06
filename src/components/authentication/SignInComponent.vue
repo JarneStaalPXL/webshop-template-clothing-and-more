@@ -160,10 +160,14 @@ export default {
       try {
         await loginWithGoogle();
 
+        // Redirect after successful Google login
+        const redirect = this.$route.query.redirect || "/";
+        this.$router.push(redirect);
+
         this.$store.commit("TRIGGER_NOTIFICATION", {
           show: true,
           title: "Success",
-          message: "Successfully logged in",
+          message: "Successfully logged in with Google",
           type: "success",
           closeButton: "Close",
           duration: 5000,
@@ -195,10 +199,14 @@ export default {
 
         await loginWithEmailPassword(email, password);
 
+        // Redirect after successful email/password login
+        const redirect = this.$route.query.redirect || "/";
+        this.$router.push(redirect);
+
         this.$store.commit("TRIGGER_NOTIFICATION", {
           show: true,
           title: "Success",
-          message: "Successfully registered",
+          message: "Successfully logged in",
           type: "success",
           closeButton: "Close",
           duration: 5000,

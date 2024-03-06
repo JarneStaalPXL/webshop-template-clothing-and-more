@@ -1,5 +1,6 @@
 import { loadStripe } from "@stripe/stripe-js";
 import { createGETRequestAsync } from "./requestHelper";
+import store from "../store";
 
 async function redirectToStripeCheckoutWithProducts(cart, currency) {
   let products = cart.map((product) => {
@@ -8,6 +9,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
       productName += ` (${product.color.name})`;
     }
 
+    console.log(product.product.product)  ;
     return {
       price_data: {
         currency: currency,
@@ -25,7 +27,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
     price_data: {
       currency: currency,
       product_data: {
-        name:  "Shipping",
+        name: "Shipping",
         images: [
           "https://static.vecteezy.com/system/resources/previews/000/628/936/original/shipping-truck-icon-vector.jpg",
         ],
@@ -49,6 +51,13 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
     quantity: 1,
   });
 
+  let costDetails = {
+    subtotal: Number.parseFloat(cart.subtotal),
+    shipping: Number.parseFloat(cart.shippingEstimate),
+    taxes: Number.parseFloat(cart.taxEstimate),
+    total: Number.parseFloat(cart.subtotal) + Number.parseFloat(cart.shippingEstimate) + Number.parseFloat(cart.taxEstimate)
+  }
+
   const response = await fetch(
     `${import.meta.env.VITE_STRIPE_BACKEND_URL}/create-checkout-session`,
     {
@@ -58,7 +67,10 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
       },
       body: JSON.stringify({
         products: products,
+        customerId: store.state.user?.id || null,
         currency: currency,
+        cartId: localStorage.getItem("cartId") || null,
+        cost_details : costDetails
       }),
     }
   );
@@ -68,8 +80,7 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
   const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
   stripe.redirectToCheckout({ sessionId: session.sessionId });
 
-  
-  return { sessionId: session.id};
+  return { sessionId: "session.id" };
 }
 
 export { redirectToStripeCheckoutWithProducts };

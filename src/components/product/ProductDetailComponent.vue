@@ -276,7 +276,7 @@ export default {
       );
     },
     addToCart({ product, selectedColor }) {
-      this.$store.dispatch("addToCart", {
+      this.$store.dispatch("ADD_TO_CART", {
         product: product,
         color: selectedColor,
         cartId: localStorage.getItem("cartId"),

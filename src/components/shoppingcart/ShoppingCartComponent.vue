@@ -18,14 +18,22 @@
               :key="product.id"
               class="flex py-6 sm:py-10"
             >
-              <div class="flex-shrink-0">
+              <div
+                class="flex-shrink-0"
+                v-if="
+                  product.product.ImagesWithAlternativeText &&
+                  product.product.ImagesWithAlternativeText[0]
+                "
+              >
                 <img
                   :src="
+                    product.product.ImagesWithAlternativeText &&
                     product.product.ImagesWithAlternativeText[0]
                       ? product.product.ImagesWithAlternativeText[0].image.url
                       : 'https://via.placeholder.com/300'
                   "
                   :alt="
+                    product.product.ImagesWithAlternativeText &&
                     product.product.ImagesWithAlternativeText[0]
                       ? product.product.ImagesWithAlternativeText[0].alt
                       : ''
@@ -33,6 +41,7 @@
                   class="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
                 />
               </div>
+              <!-- <div v-if="product.ImagesWithAlternativeText"></div> -->
 
               <div class="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
                 <div class="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
@@ -155,7 +164,7 @@
                   <!-- Ensure this is always on the right by placing it outside and after the conditionally rendered color div -->
                   <div class="flex items-center space-x-2 text-sm text-gray-700">
                     <CheckIcon
-                      v-if="product.product.inStock"
+                      v-if="product.product && product.product.inStock"
                       class="h-5 w-5 flex-shrink-0 text-green-500"
                       aria-hidden="true"
                     />
@@ -166,9 +175,11 @@
                     />
                     <span>
                       {{
-                        product.product.inStock
+                        product.product && product.product.inStock
                           ? "In stock"
-                          : `Ships in ${product.product.shipsInAmountOfDays}`
+                          : `Ships in ${
+                              product.product && product.product.shipsInAmountOfDays
+                            }`
                       }}
                     </span>
                   </div>
@@ -206,10 +217,6 @@
             <div class="flex items-center justify-between border-t border-gray-200 pt-4">
               <dt class="flex text-sm text-gray-600">
                 <span>VAT ({{ taxPercentage * 100 }}%)</span>
-                <!-- <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                  <span class="sr-only">Learn more about how tax is calculated</span>
-                  <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
-                </a> -->
               </dt>
               <dd class="text-sm font-medium text-gray-900">
                 {{ $store.state.currency.symbol }} {{ taxEstimate }}
@@ -241,7 +248,6 @@
 import {
   CheckIcon,
   ClockIcon,
-  QuestionMarkCircleIcon,
   XMarkIcon,
   ChevronUpDownIcon,
 } from "@heroicons/vue/24/outline";
@@ -265,7 +271,6 @@ export default {
     CheckIcon,
     ClockIcon,
     XMarkIcon,
-    QuestionMarkCircleIcon,
     ChevronUpDownIcon,
     Listbox,
     ListboxButton,
@@ -283,44 +288,14 @@ export default {
       taxPercentage: Number.parseFloat(import.meta.env.VITE_TAX_RATE_PERCENTAGE),
     };
   },
-  // computed: {
-  //   cart() {
-  //     return this.$store.state.cart;
-  //   },
-  //   subtotal() {
-  //     return calculateSubtotal(this.cart);
-  //   },
-  //   shippingEstimate() {
-  //     return calculateShippingEstimate(this.cart, this.subtotal, null, this.taxEstimate);
-  //   },
-  //   taxEstimate() {
-  //     return calculateTaxEstimate(this.subtotal, this.$store.state.taxRate);
-  //   },
-  //   orderTotal() {
-  //     return calculateOrderTotal(this.subtotal, this.shippingEstimate, this.taxEstimate);
-  //   },
-  // },
   async beforeMount() {
     if (this.$store.state.isLoggedIn) {
-      await this.$store.dispatch("CREATE_OR_LOAD_CART", this.$store.state.user.id);
+      await this.$store.dispatch("LOAD_CART");
     }
 
     this.calculateAllTotals();
-
-    // Update the cart with the latest prices from the server
-    // await this.updatePrices();
   },
   methods: {
-    // async updatePrices() {
-    //   const priceUpdates = this.cart.map(async (product) => {
-    //     const price = await this.$store.dispatch(
-    //       "GET_PRODUCT_PRICE_BY_ID",
-    //       product.product.id
-    //     );
-    //   });
-
-    //   await Promise.all(priceUpdates);
-    // },
     calculateAllTotals() {
       this.subtotal = calculateSubtotal(this.$store.state.cart);
       this.shippingEstimate = calculateShippingEstimate(
@@ -337,7 +312,11 @@ export default {
       );
     },
     checkout() {
-      this.$router.push("/checkout");
+      if (this.$store.state.user) {
+        this.$router.push("/checkout");
+      } else {
+        this.$router.push({ path: "/login", query: { redirect: "/checkout" } });
+      }
     },
     onQuantityChange(product, newQuantity) {
       this.$store.dispatch("UPDATE_PRODUCT_QUANTITY_IN_CART", {
@@ -350,7 +329,10 @@ export default {
       let productId = product.product.id;
 
       let colorId = product.product_color ? product.product_color.id : null;
-      await this.$store.dispatch("REMOVE_PRODUCT_FROM_CART", { productId, colorId });
+      await this.$store.dispatch("REMOVE_PRODUCT_FROM_CART", {
+        productId,
+        colorId,
+      });
       this.calculateAllTotals();
     },
   },

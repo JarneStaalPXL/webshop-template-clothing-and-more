@@ -416,13 +416,20 @@
 
           <div class="mt-4 rounded-lg border border-gray-200 bg-white shadow-sm">
             <h3 class="sr-only">Items in your cart</h3>
-            <ul role="list" class="divide-y divide-gray-200">
+            <ul
+              role="list"
+              class="divide-y divide-gray-200"
+              v-if="$store.state.cart.length > 0"
+            >
               <li
                 v-for="product in $store.state.cart"
                 :key="product.id"
                 class="flex px-4 py-6 sm:px-6"
               >
-                <div class="flex-shrink-0">
+                <div
+                  class="flex-shrink-0"
+                  v-if="product.product.ImagesWithAlternativeText[0]"
+                >
                   <img
                     :src="
                       product.product.ImagesWithAlternativeText[0]
@@ -664,6 +671,16 @@ export default {
     this.checkoutForm.paymentType = this.paymentMethods[0].id;
     this.setInitialDeliveryMethod();
     this.checkoutForm.country = this.$store.state.countries[0];
+  },
+  mounted() {
+    // const products = JSON.parse(localStorage.getItem("cart"));
+    // products.forEach((product) => {
+    //   this.$store.dispatch("ADD_TO_CART", {
+    //     product: product,
+    //     color: product.color,
+    //     cartId: Number.parseFloat(localStorage.getItem("cartId")),
+    //   });
+    // });
   },
   created() {},
   methods: {

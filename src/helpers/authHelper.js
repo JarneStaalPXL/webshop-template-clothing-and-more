@@ -56,7 +56,7 @@ const loginWithEmailPassword = async (email, password) => {
     // Change login status
     store.commit("SET_ISLOGGEDIN", true);
     await store.dispatch("CREATE_USER_ON_STRAPI", user);
-    await store.dispatch("CREATE_OR_LOAD_CART", user.uid);
+    await store.dispatch("LOAD_CART", user.uid);
     router.push('/');
     
     return userCredential.user;
@@ -82,10 +82,15 @@ const loginWithGoogle = async () => {
       photo: user.photoURL,
     });
 
-    // Change login status
-    store.commit("SET_ISLOGGEDIN", true);
-    await store.dispatch("CREATE_USER_ON_STRAPI", user);
-    await store.dispatch("CREATE_OR_LOAD_CART", user.uid);
+    try {
+      // Change login status
+      store.commit("SET_ISLOGGEDIN", true);
+      await store.dispatch("CREATE_USER_ON_STRAPI", user);
+      await store.dispatch("LOAD_CART", user.uid);
+    } catch (error) {
+      console.error("Error:", error);
+      throw error;
+    }
     router.push('/');
     return user;
   } catch (error) {
