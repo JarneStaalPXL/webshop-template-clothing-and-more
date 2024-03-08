@@ -1,15 +1,22 @@
 import { loadStripe } from "@stripe/stripe-js";
-import { createGETRequestAsync } from "./requestHelper";
+import { createPUTRequestAsync, createPOSTRequestAsync } from "./requestHelper";
 import store from "../store";
 
-async function redirectToStripeCheckoutWithProducts(cart, currency) {
+async function redirectToStripeCheckoutWithProducts({
+  cart,
+  currency,
+  checkoutForm,
+  customerId,
+  cartId,
+}) {
+  console.log('Mapping products for Stripe checkout.');
+
   let products = cart.map((product) => {
     let productName = product.product.name;
     if (product.color) {
       productName += ` (${product.color.name})`;
     }
 
-    console.log(product.product.product)  ;
     return {
       price_data: {
         currency: currency,
@@ -23,6 +30,8 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
     };
   });
 
+  // Adding Shipping
+  console.log('Adding shipping costs to Stripe checkout products.');
   products.push({
     price_data: {
       currency: currency,
@@ -32,11 +41,13 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
           "https://static.vecteezy.com/system/resources/previews/000/628/936/original/shipping-truck-icon-vector.jpg",
         ],
       },
-      unit_amount: Math.round(cart.shippingEstimate * 100), // Round to nearest whole number to avoid floating point precision issues
+      unit_amount: Math.round(cart.shippingEstimate * 100),
     },
     quantity: 1,
   });
 
+  // Adding Taxes
+  console.log('Adding tax costs to Stripe checkout products.');
   products.push({
     price_data: {
       currency: currency,
@@ -46,18 +57,25 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
           "https://static.vecteezy.com/system/resources/previews/001/500/372/original/tax-report-icon-free-vector.jpg",
         ],
       },
-      unit_amount: Math.round(cart.taxEstimate * 100), // Same rounding here for taxes
+      unit_amount: Math.round(cart.taxEstimate * 100),
     },
     quantity: 1,
   });
 
+  // Constructing Cost Details
+  console.log('Calculating cost details for order.');
   let costDetails = {
     subtotal: Number.parseFloat(cart.subtotal),
     shipping: Number.parseFloat(cart.shippingEstimate),
-    taxes: Number.parseFloat(cart.taxEstimate),
-    total: Number.parseFloat(cart.subtotal) + Number.parseFloat(cart.shippingEstimate) + Number.parseFloat(cart.taxEstimate)
-  }
+    tax: Number.parseFloat(cart.taxEstimate),
+    total:
+      Number.parseFloat(cart.subtotal) +
+      Number.parseFloat(cart.shippingEstimate) +
+      Number.parseFloat(cart.taxEstimate),
+  };
 
+  // Creating Checkout Session with Stripe
+  console.log('Creating checkout session with Stripe.');
   const response = await fetch(
     `${import.meta.env.VITE_STRIPE_BACKEND_URL}/create-checkout-session`,
     {
@@ -70,17 +88,77 @@ async function redirectToStripeCheckoutWithProducts(cart, currency) {
         customerId: store.state.user?.id || null,
         currency: currency,
         cartId: localStorage.getItem("cartId") || null,
-        cost_details : costDetails
+        cost_details: costDetails,
       }),
     }
   );
 
   const session = await response.json();
-  console.log("🚀 ~ redirectToStripeCheckoutWithProducts ~ session:", session)
-  const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-  stripe.redirectToCheckout({ sessionId: session.sessionId });
+  console.log('Stripe checkout session created:', session);
 
-  return { sessionId: "session.id" };
+  // Creating Order in Database
+  console.log('Creating order in the database with the following details:', {
+    customerId,
+    cartId,
+    checkoutSessionId: session.sessionId,
+    currency,
+    costDetails,
+    checkoutForm,
+  });
+
+  const orderResponse = await createPOSTRequestAsync(
+    `/order-detail/create-order`,
+    {
+      customerId,
+      cartId,
+      checkoutSessionId: session.sessionId,
+      currency,
+      cost_details: costDetails,
+      checkoutForm,
+    }
+  );
+
+  const order = await orderResponse.json();
+  console.log('Order created in the database:', order);
+
+  // Redirect to Stripe Checkout (Uncomment in production)
+  console.log('Redirecting to Stripe checkout page.');
+  const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+  await stripe.redirectToCheckout({ sessionId: session.sessionId });
+
+  return { sessionId: session.id };
 }
 
-export { redirectToStripeCheckoutWithProducts };
+async function updateOrderWithPaymentIntentId(sessionId) {
+  // Make sure that the id is not undefined
+  if (!sessionId) {
+    console.error('Session ID is undefined.');
+    return;
+  }
+
+  const response = await fetch(
+    `${import.meta.env.VITE_STRIPE_BACKEND_URL}/update-order-with-payment-intent-id`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sessionId: sessionId, // Confirm this is the correct property for session ID
+      }),
+    }
+  );
+
+  // Log the status and response for debugging
+  const status = response.status;
+  const order = await response.json();
+
+
+  console.log(`Response status: ${status}`, 'Order updated with payment intent id:', order);
+  return order;
+
+}
+
+
+
+
+export { redirectToStripeCheckoutWithProducts,updateOrderWithPaymentIntentId };

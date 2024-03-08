@@ -711,6 +711,12 @@ export default {
       await this.$store.dispatch("SUBMIT_ORDER", {
         checkoutForm: this.checkoutForm,
         cart: this.cart,
+        cost_details: {
+          subtotal: this.subtotal,
+          shipping: this.shippingEstimate,
+          tax: this.taxEstimate,
+          total: this.orderTotal,
+        },
       });
     },
     formatCardNumber(event) {

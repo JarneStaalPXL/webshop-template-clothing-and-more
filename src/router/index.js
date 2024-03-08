@@ -35,9 +35,15 @@ const routes = [
         component: () => import('../views/CheckoutView.vue'),
     },
     {
-        path: '/checkout/success/',
+        path: '/checkout/afterPaymentRedirect/',
         query: { sessionId: 'session_id', orderNumberId: 'order_id'},
+        name: 'RedirectAfterPaymentView',
+        component: () => import('../views/RedirectAfterPaymentView.vue'),
+    },
+    {
+        path: '/checkout/success',
         name: 'CheckoutSuccessView',
+        query: { sessionId: 'session_id', orderNumberId: 'order_id'},
         component: () => import('../views/CheckoutSuccessView.vue'),
     },
     {
@@ -75,6 +81,8 @@ const routes = [
     }
 ];
 
+
+
 const router = createRouter({
     history: createWebHistory(),
     routes,
@@ -87,6 +95,12 @@ const router = createRouter({
             return { top: 0 };
         }
     },
+});
+
+router.beforeEach((to, from, next) => {
+    store.commit("SET_SHOW_NAVIGATION_COMPONENT", true);
+    store.commit("SET_SHOW_FOOTER_COMPONENT", true);
+    next();
 });
 
 export default router;

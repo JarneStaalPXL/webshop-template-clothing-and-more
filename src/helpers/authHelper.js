@@ -102,10 +102,9 @@ const loginWithGoogle = async () => {
 
 const logout = async () => {
   try {
-    await auth.signOut();
     store.commit("SET_USER", {});
     store.commit("SET_ISLOGGEDIN", false);
-    router.push('/');
+    localStorage.removeItem("cartId");
   } catch (error) {
     const friendlyError = handleFirebaseError(error);
     console.error("Login failed:", error.message);
@@ -151,7 +150,7 @@ const handleFirebaseError = (error) => {
   // Customize error handling and user feedback based on the error code
   switch (error.code) {
     case 'auth/user-not-found':
-      errorMessage = 'No user found with this email address.';
+      errorMessage = 'No user found with this email adress.';
       break;
       case 'auth/invalid-credential':
         errorMessage = 'The email address or password is incorrect. Please check your credentials and try again.';
@@ -185,4 +184,4 @@ const handleFirebaseError = (error) => {
 };
 
 
-export { loginWithEmailPassword, loginWithGoogle, registerWithEmailPassword };
+export { loginWithEmailPassword, loginWithGoogle, registerWithEmailPassword,logout };

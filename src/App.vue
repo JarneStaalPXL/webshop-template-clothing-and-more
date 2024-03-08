@@ -3,14 +3,14 @@
     <NotificationComponent />
     <transition name="fade" mode="out-in">
       <div class="content-wrap">
-        <NavigationComponent />
+        <NavigationComponent v-if="$store.state.showNavigationComponent" />
         <SearchComponent />
         <router-view v-slot="{ Component }">
           <component :is="Component" />
         </router-view>
       </div>
     </transition>
-    <FooterComponent />
+    <FooterComponent v-if="$store.state.showFooterComponent" />
   </div>
 </template>
 

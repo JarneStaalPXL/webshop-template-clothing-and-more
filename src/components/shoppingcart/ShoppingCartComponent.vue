@@ -322,13 +322,14 @@ export default {
       this.$store.dispatch("UPDATE_PRODUCT_QUANTITY_IN_CART", {
         productId: product.product.id,
         quantity: newQuantity,
+        productColor: product.color,
       });
       this.calculateAllTotals();
     },
     async removeProductFromCart(product) {
       let productId = product.product.id;
 
-      let colorId = product.product_color ? product.product_color.id : null;
+      let colorId = product.color ? product.color.id : null;
       await this.$store.dispatch("REMOVE_PRODUCT_FROM_CART", {
         productId,
         colorId,
