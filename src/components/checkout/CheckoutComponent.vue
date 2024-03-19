@@ -708,6 +708,8 @@ export default {
       this.cart.orderTotal = this.orderTotal;
       localStorage.setItem("cart", JSON.stringify(this.cart));
 
+      console.log(this.checkoutForm);
+
       await this.$store.dispatch("SUBMIT_ORDER", {
         checkoutForm: this.checkoutForm,
         cart: this.cart,

@@ -9,7 +9,7 @@ function calculateSubtotal(cartItems) {
 
   const total = cartItems.reduce((acc, cartItem) => {
     const price = cartItem.product.price;
-    const quantity = cartItem.quantity;
+    const quantity = cartItem.product.quantity;
     return acc + (price * quantity);
   }, 0);
 

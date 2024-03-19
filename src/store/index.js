@@ -757,30 +757,43 @@ export default createStore({
             (product.product_color &&
               product.product_color.id === productColor.id))
       );
-      commit("updateProductQuantity", { productId, quantity, productColor });
-
+    
+      // Check if product exists in the cart before committing any changes.
       if (productIndex !== -1) {
-        state.cart[productIndex].product.quantity = quantity;
-        state.cart[productIndex].quantity = quantity;
+        // Commit the mutation to update the product quantity. The mutation should handle updating the state.
 
+        console.log()
+        commit("updateProductQuantity", {
+          productIndex,
+          quantity,
+          productColor
+        });
+    
         // Persist the updated cart to localStorage
         commit("SET_CART", state.cart);
-
+    
         // If user is logged in, update the cart in the database
         if (state.isLoggedIn && state.user) {
-          // Also update the cart in the database
           const data = {
             cartId: localStorage.getItem("cartId"),
             productId: state.cart[productIndex].product.id,
             colorId: state.cart[productIndex].product_color.id,
             newQuantity: quantity,
           };
-
-          const response = await createPUTRequestAsync(
-            "/shoppingcart-detail/changeProductQuantityInCart",
-            data
-          );
-          const dt = await response.json();
+    
+          try {
+            const response = await createPUTRequestAsync(
+              "/shoppingcart-detail/changeProductQuantityInCart",
+              data
+            );
+            if (!response.ok) {
+              throw new Error('Failed to update the product quantity in the database');
+            }
+            const dt = await response.json(); // Make sure to handle this response appropriately
+          } catch (error) {
+            // Handle error, such as showing a message to the user
+            console.error('Error updating product quantity:', error);
+          }
         }
       }
     },
@@ -1005,12 +1018,13 @@ export default createStore({
 
       // Then submit the payment and the cart to your server
 
+      console.log(checkoutForm)
       if (paymentMethod === "stripe") {
         // Initiatate the payment process with Stripe
 
         let sessionObject = await redirectToStripeCheckoutWithProducts({
           cart: cart,
-          currency: state.currency.code,
+          currency: state.currency,
           checkoutForm: checkoutForm,
           customerId: state.user.id,
           cartId: localStorage.getItem("cartId"),

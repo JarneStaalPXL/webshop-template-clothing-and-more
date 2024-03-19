@@ -8,6 +8,7 @@ async function redirectToStripeCheckoutWithProducts({
   checkoutForm,
   customerId,
   cartId,
+
 }) {
   console.log('Mapping products for Stripe checkout.');
 
@@ -19,7 +20,7 @@ async function redirectToStripeCheckoutWithProducts({
 
     return {
       price_data: {
-        currency: currency,
+        currency: currency.code,
         product_data: {
           name: productName,
           images: [product.product.ImagesWithAlternativeText[0].image.url],
@@ -34,7 +35,7 @@ async function redirectToStripeCheckoutWithProducts({
   console.log('Adding shipping costs to Stripe checkout products.');
   products.push({
     price_data: {
-      currency: currency,
+      currency: currency.code,
       product_data: {
         name: "Shipping",
         images: [
@@ -50,7 +51,7 @@ async function redirectToStripeCheckoutWithProducts({
   console.log('Adding tax costs to Stripe checkout products.');
   products.push({
     price_data: {
-      currency: currency,
+      currency: currency.code,
       product_data: {
         name: "Taxes",
         images: [
@@ -86,7 +87,7 @@ async function redirectToStripeCheckoutWithProducts({
       body: JSON.stringify({
         products: products,
         customerId: store.state.user?.id || null,
-        currency: currency,
+        currency: currency.code,
         cartId: localStorage.getItem("cartId") || null,
         cost_details: costDetails,
       }),
@@ -106,6 +107,8 @@ async function redirectToStripeCheckoutWithProducts({
     checkoutForm,
   });
 
+
+
   const orderResponse = await createPOSTRequestAsync(
     `/order-detail/create-order`,
     {
@@ -115,6 +118,25 @@ async function redirectToStripeCheckoutWithProducts({
       currency,
       cost_details: costDetails,
       checkoutForm,
+      shipping_information: {
+        firstname : checkoutForm.firstName,
+        lastname : checkoutForm.lastName,
+        companyName : checkoutForm.company,
+        streetAddressAndHouseNumber : checkoutForm.address,
+        city : checkoutForm.city,
+        country : checkoutForm.country.name,
+        province: checkoutForm.province,
+        postalCode : checkoutForm.postalCode,
+      },
+      contact_information: {
+        email: checkoutForm.email,
+        phoneNumber: checkoutForm.phone,
+      },
+      payment_information: {
+        paymentType: checkoutForm.paymentType,
+        currencySymbol: currency.symbol,
+        currencyCode: currency.code,
+      },
     }
   );
 

@@ -319,10 +319,13 @@ export default {
       }
     },
     onQuantityChange(product, newQuantity) {
+      console.log({
+        product
+      });
       this.$store.dispatch("UPDATE_PRODUCT_QUANTITY_IN_CART", {
         productId: product.product.id,
         quantity: newQuantity,
-        productColor: product.color,
+        productColor: product.product_color,
       });
       this.calculateAllTotals();
     },

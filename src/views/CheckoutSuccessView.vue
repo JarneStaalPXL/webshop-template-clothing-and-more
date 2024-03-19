@@ -8,7 +8,9 @@
     ```
   -->
   <main class="relative lg:min-h-full">
-    <div class="h-80 overflow-hidden lg:absolute lg:h-full lg:w-1/2 lg:pr-4 xl:pr-12">
+    <div
+      class="h-80 overflow-hidden lg:absolute lg:h-full lg:w-1/2 lg:pr-4 xl:pr-12"
+    >
       <img
         src="https://tailwindui.com/img/ecommerce-images/confirmation-page-06-hero.jpg"
         alt="TODO"
@@ -18,41 +20,67 @@
 
     <div>
       <div
+        v-if="order"
         class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:py-32 xl:gap-x-24"
       >
         <div class="lg:col-start-2">
-          <h1 class="text-sm font-medium text-indigo-600">Payment successful</h1>
-          <p class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          <h1 class="text-sm font-medium text-indigo-600">
+            Payment successful
+          </h1>
+          <p
+            class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+          >
             Thanks for ordering
           </p>
           <p class="mt-2 text-base text-gray-500">
-            We appreciate your order, we’re currently processing it. So hang tight and
-            we’ll send you confirmation very soon!
+            We appreciate your order, we’re currently processing it. So hang
+            tight and we’ll send you confirmation very soon!
           </p>
 
           <dl class="mt-16 text-sm font-medium">
             <dt class="text-gray-900">Order number</dt>
-            <dd class="mt-2 text-indigo-600">{{ orderNumberId }}</dd>
+            <dd class="mt-2 text-indigo-600 cursor-pointer" @click="$router.push('/account/orders')">{{ orderNumberId }}</dd>
           </dl>
 
           <ul
             role="list"
             class="mt-6 divide-y divide-gray-200 border-t border-gray-200 text-sm font-medium text-gray-500"
           >
-            <li v-for="product in products" :key="product.id" class="flex space-x-6 py-6">
+            <li
+              v-for="product in order.shopping_cart.Products"
+              :key="product.id"
+              class="flex space-x-6 py-6"
+            >
               <img
-                :src="product.imageSrc"
-                :alt="product.imageAlt"
+                :src="product.product.ImagesWithAlternativeText[0].image.url"
+                :alt="product.product.ImagesWithAlternativeText[0].alt"
                 class="h-24 w-24 flex-none rounded-md bg-gray-100 object-cover object-center"
               />
-              <div class="flex-auto space-y-1">
+              <div class="flex flex-col justify-between h-full min-h-[90px]">
+                <!-- Adjust the min-h value as needed -->
                 <h3 class="text-gray-900">
-                  <a :href="product.href">{{ product.name }}</a>
+                  <router-link :to="'/product/' + product.product.id">{{
+                    product.product.name
+                  }}</router-link>
                 </h3>
-                <p>{{ product.color }}</p>
-                <p>{{ product.size }}</p>
+
+                <div class="flex items-center" v-if="product.pc">
+                  <div
+                    :class="`rounded-full border border-transparent ring-2 ring-black ring-offset-2 ring-offset-white`"
+                    :style="{
+                      background: product.pc.color,
+                      width: '25px',
+                      height: '25px',
+                    }"
+                  ></div>
+                  <div class="ml-3">{{ product.pc.name }}</div>
+                </div>
+                <!-- <p>{{ product.size }}</p> -->
               </div>
-              <p class="flex-none font-medium text-gray-900">{{ product.price }}</p>
+
+              <p class="flex-none font-medium text-gray-900">
+                {{ product.price }}
+              </p>
             </li>
           </ul>
 
@@ -61,24 +89,24 @@
           >
             <div class="flex justify-between">
               <dt>Subtotal</dt>
-              <dd class="text-gray-900">$72.00</dd>
+              <dd class="text-gray-900">{{order.payment_information.currencySymbol}} {{ order.cost_details.subtotal }}</dd>
             </div>
 
             <div class="flex justify-between">
               <dt>Shipping</dt>
-              <dd class="text-gray-900">$8.00</dd>
+              <dd class="text-gray-900">{{order.payment_information.currencySymbol}} {{ order.cost_details.shipping }}</dd>
             </div>
 
             <div class="flex justify-between">
               <dt>Taxes</dt>
-              <dd class="text-gray-900">$6.40</dd>
+              <dd class="text-gray-900">{{order.payment_information.currencySymbol}} {{ order.cost_details.tax }}</dd>
             </div>
 
             <div
               class="flex items-center justify-between border-t border-gray-200 pt-6 text-gray-900"
             >
               <dt class="text-base">Total</dt>
-              <dd class="text-base">$86.40</dd>
+              <dd class="text-base">{{order.payment_information.currencySymbol}} {{ order.cost_details.total }}</dd>
             </div>
           </dl>
 
@@ -87,34 +115,23 @@
               <dt class="font-medium text-gray-900">Shipping Address</dt>
               <dd class="mt-2">
                 <address class="not-italic">
-                  <span class="block">Kristin Watson</span>
-                  <span class="block">7363 Cynthia Pass</span>
-                  <span class="block">Toronto, ON N3Y 4H8</span>
+                  <span class="block">{{order.shipping_information.firstname }} {{ order.shipping_information.lastname }}</span>
+                  <span class="block">{{ order.shipping_information.streetAddressAndHouseNumber }}</span>
+                  <span class="block">{{ order.shipping_information.postalCode }} {{order.shipping_information.city  }}</span>
+                  <span class="block">{{ order.shipping_information.province }}, {{order.shipping_information.country  }}</span>
                 </address>
               </dd>
             </div>
-            <div>
+            <div v-if="paymentDetails">
               <dt class="font-medium text-gray-900">Payment Information</dt>
               <dd class="mt-2 space-y-2 sm:flex sm:space-x-4 sm:space-y-0">
                 <div class="flex-none">
-                  <svg
-                    aria-hidden="true"
-                    width="36"
-                    height="24"
-                    viewBox="0 0 36 24"
-                    class="h-6 w-auto"
-                  >
-                    <rect width="36" height="24" rx="4" fill="#224DBA" />
-                    <path
-                      d="M10.925 15.673H8.874l-1.538-6c-.073-.276-.228-.52-.456-.635A6.575 6.575 0 005 8.403v-.231h3.304c.456 0 .798.347.855.75l.798 4.328 2.05-5.078h1.994l-3.076 7.5zm4.216 0h-1.937L14.8 8.172h1.937l-1.595 7.5zm4.101-5.422c.057-.404.399-.635.798-.635a3.54 3.54 0 011.88.346l.342-1.615A4.808 4.808 0 0020.496 8c-1.88 0-3.248 1.039-3.248 2.481 0 1.097.969 1.673 1.653 2.02.74.346 1.025.577.968.923 0 .519-.57.75-1.139.75a4.795 4.795 0 01-1.994-.462l-.342 1.616a5.48 5.48 0 002.108.404c2.108.057 3.418-.981 3.418-2.539 0-1.962-2.678-2.077-2.678-2.942zm9.457 5.422L27.16 8.172h-1.652a.858.858 0 00-.798.577l-2.848 6.924h1.994l.398-1.096h2.45l.228 1.096h1.766zm-2.905-5.482l.57 2.827h-1.596l1.026-2.827z"
-                      fill="#fff"
-                    />
-                  </svg>
+                 <PaymentTypeIcon :paymentType="paymentDetails.brand" />
                   <p class="sr-only">Visa</p>
                 </div>
                 <div class="flex-auto">
-                  <p class="text-gray-900">Ending with 4242</p>
-                  <p>Expires 12 / 21</p>
+                  <p class="text-gray-900">Ending with {{ paymentDetails.last4 }}</p>
+                  <p>Expires {{ paymentDetails.exp_month }} / {{ paymentDetails.exp_year.toString().slice(-2) }}</p>
                 </div>
               </dd>
             </div>
@@ -136,7 +153,11 @@
 </template>
 
 <script>
-import { createGETRequestAsync, createPOSTRequestAsync } from "../helpers/requestHelper";
+import PaymentTypeIcon from "../components/shared/PaymentTypeIcon.vue";
+import {
+  createGETRequestAsync,
+  createPOSTRequestAsync,
+} from "../helpers/requestHelper";
 export default {
   name: "CheckoutSuccessView",
   query: {
@@ -154,13 +175,18 @@ export default {
       checkoutSessionId: null,
       orderNumberId: null,
       paymentStatus: null,
+      order: null,
+      paymentDetails: null,
     };
+  },
+  components: {
+    PaymentTypeIcon,
   },
   // beforeMount() {
   //   this.$store.commit("SET_SHOW_NAVIGATION_COMPONENT", false);
   //   this.$store.commit("SET_SHOW_FOOTER_COMPONENT", true);
   // },
-  mounted() {
+  beforeMount() {
     this.$store.commit("SET_SHOW_NAVIGATION_COMPONENT", false);
     this.$store.commit("SET_SHOW_FOOTER_COMPONENT", true);
 
@@ -174,20 +200,38 @@ export default {
     if (this.checkoutSessionId && this.orderNumberId) {
       // Clear cart
       this.$store.dispatch("CLEAR_CART");
-
-
     }
 
     this.getOrderObject();
+    this.getPaymentDetails();
   },
   methods: {
     async getOrderObject() {
       const response = await createGETRequestAsync(
-        `/order-detail/getOrderById/${this.orderNumberId}`
+        `/order-detail/get-order-by-id/${this.orderNumberId}`
       );
-      const orderObject = await response.json();  
+      const orderObject = await response.json();
+
+      this.order = orderObject;
       console.log(orderObject);
     },
+    async getPaymentDetails(){
+      // Get the payment details from stripe and set fourLastNumbersOfPaymentCard
+      const response = await fetch(import.meta.env.VITE_STRIPE_BACKEND_URL + '/get-payment-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: this.checkoutSessionId,
+        }),
+      });
+
+      const paymentDetails = await response.json();
+      console.log("🚀 ~ getPaymentDetails ~ paymentDetails:", paymentDetails)
+
+      this.paymentDetails = paymentDetails;
+    }
   },
 };
 </script>
